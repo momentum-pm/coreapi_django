@@ -1,0 +1,21 @@
+django==4.2.7
+django-dotenv==1.4.2
+djangorestframework==3.14.0
+psycopg2-binary==2.9.9
+requests==2.31.0
+drf-yasg==1.21.7
+zeep==4.2.1
+celery==5.3.6
+redis==5.0.1
+flower==2.0.1
+pandas==2.1.3
+langchain
+openai
+
+# ALWAYS NEVER 
+
+
+# 1. Prompt engineering
+# 2. RAG
+# 3. Fine Tuning
+# Dev Day on OpenAI describes these three terms
