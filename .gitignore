@@ -3,7 +3,7 @@ static/
 media/
 .venv/
 .vscode/
-runservermedia/
 */local_settings.py
 __pycache__
 .env
+*.pyc
