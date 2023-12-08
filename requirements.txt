@@ -11,8 +11,7 @@ flower==2.0.1
 pandas==2.1.3
 django-extensions
 # ALWAYS NEVER 
-
-
+openai
 # 1. Prompt engineering
 # 2. RAG
 # 3. Fine Tuning

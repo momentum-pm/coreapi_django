@@ -31,13 +31,14 @@ class GoalCreateEditSerializer(serializers.ModelSerializer):
         fields = [
             "name",
             "summary",
-            "parent",
-            "records",
-            "dependencies",
+            "owner",
+            # "parent",
+            # "records",
+            # "dependencies",
         ]
 
-    dependencies = serializers.ListSerializer(child=DependencyNestedSerializer())
-    records = serializers.ListSerializer(child=RecordNestedSerializer())
+    # dependencies = serializers.ListSerializer(child=DependencyNestedSerializer())
+    # records = serializers.ListSerializer(child=RecordNestedSerializer())
 
     def get_nested_context(self, key) -> dict:
         if key == "dependencies":
@@ -45,10 +46,6 @@ class GoalCreateEditSerializer(serializers.ModelSerializer):
         if key == "records":
             return {"goal": self.instance}
         return {}
-
-    def create(self, validated_data):
-        validated_data.update(owner=self.context.get("request").user)
-        super().create(validated_data)
 
 
 class GoalFullRetrieveSerializer(serializers.ModelSerializer):
@@ -65,15 +62,24 @@ class GoalFullRetrieveSerializer(serializers.ModelSerializer):
         ]
 
 
+class AssistantBaseSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = models.Assistant
+        fields = ["id", "member", "state"]
+
+
 class GoalBaseRetrieveSerializer(serializers.ModelSerializer):
     class Meta:
         model = models.Goal
         fields = [
             "id",
+            "assistant",
             "name",
             "summary",
             "entities",
         ]
+
+    assistant = AssistantBaseSerializer()
 
 
 ## ENtitiy Serializers

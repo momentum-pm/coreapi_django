@@ -28,6 +28,8 @@ class ENV:
     REDIS_PORT = os.getenv("REDIS_PORT", default="6379")
     CELERY_BROKER_URL = os.getenv("CELERY_BROKER_URL", "redis://localhost:6379")
     CELERY_RESULT_BACKEND = "django-db"
+    OPEN_AI_KEY = os.getenv("OPENAI_API_KEY")
+    LLM_REQUESTS = os.getenv("LLM_REQUESTS") == "on"
 
 
 BASE_DIR = Path(__file__).resolve().parent.parent

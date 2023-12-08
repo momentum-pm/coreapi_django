@@ -108,3 +108,10 @@ class User(AbstractUser):
 
             actions = Action.register_actions(actions)
             self.grant_actions(actions)
+
+    def create_person(self, summary):
+        from people.models import Person
+
+        Person.objects.create(
+            user=self, name=f"{self.first_name} {self.last_name}", summary=summary
+        )

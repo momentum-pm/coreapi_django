@@ -18,7 +18,7 @@ class GoalsView(
         "oldest": "created_at",
         "newest": "-created_at",
     }
-    filter_lookups: {
+    filter_lookups = {
         "owner": "owner",
     }
     request_serializer = {
@@ -74,7 +74,7 @@ class EffectsView(
         "oldest": "created_at",
         "newest": "-created_at",
     }
-    filter_lookups: {
+    filter_lookups = {
         "goal": "goal",
         "entity": "entity",
         "from": "created_at__gte",

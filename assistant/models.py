@@ -1,12 +1,33 @@
 from utils import models
 
 
+class Assistant(models.Model):
+    state = models.TextField()
+    member = models.OneToOneField(
+        to="chat.Member",
+        on_delete=models.CASCADE,
+        related_name="assistant",
+    )
+
+    def pre_save(self, in_create=False, in_bulk=False, index=None) -> None:
+        if in_create:
+            from chat.models import Member
+
+            member = Member.objects.create(role=Member.ASSISTANT)
+            self.member = member
+        return super().pre_save(in_create, in_bulk, index)
+
+    def __str__(self) -> str:
+        return f"{self.goal.name}'s assistant"
+
+
 class Goal(models.CreatableModel):
     owner = models.ForeignKey(
         to="people.Person",
         related_name="owned_goals",
         on_delete=models.CASCADE,
     )
+    assistant = models.OneToOneField(to="Assistant", on_delete=models.CASCADE)
     name = models.CharField(max_length=255)
     summary = models.TextField(blank=True)
     parent = models.ForeignKey(
@@ -32,6 +53,12 @@ class Goal(models.CreatableModel):
         related_name="goals",
         through="Effect",
     )
+
+    def pre_save(self, in_create=False, in_bulk=False, index=None) -> None:
+        if in_create:
+            assistant = Assistant.objects.create(state="initial")
+            self.assistant = assistant
+        return super().pre_save(in_create, in_bulk, index)
 
     def __str__(self) -> str:
         return self.name

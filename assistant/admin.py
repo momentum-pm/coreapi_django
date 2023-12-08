@@ -2,6 +2,11 @@ from django.contrib import admin
 from . import models
 
 
+@admin.register(models.Assistant)
+class AssistantAdmin(admin.ModelAdmin):
+    list_display = ["state"]
+
+
 @admin.register(models.Goal)
 class GoalAdmin(admin.ModelAdmin):
     list_display = ["name", "summary", "parent", "created_at"]
