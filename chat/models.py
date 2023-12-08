@@ -26,7 +26,7 @@ class Chat(models.Model):
         from utils.llm import LLM
 
         response = LLM.from_chat(
-            prompt="You are a an assistant who answers questions with yes or no only",
+            prompt="You are a an assistant who in a polite tone",
             chat=self,
         )
         from chat.models import Message
