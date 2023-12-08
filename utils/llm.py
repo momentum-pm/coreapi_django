@@ -24,6 +24,7 @@ class LLM:
                 model="gpt-3.5-turbo",
                 messages=messages,
             )
+            print(completion)
             text_response = completion["choices"][0]["messages"]["content"]
         else:
             text_response = "Yes"
