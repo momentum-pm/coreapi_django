@@ -10,7 +10,7 @@ class LLM:
         messages = []
         messages.append({"role": "system", "content": prompt})
 
-        for message in chat.messages.all():
+        for message in chat.messages.all().order_by("created_at"):
             if message.member.role == Member.PERSON:
                 role = "user"
             elif message.member.role == Member.ASSISTANT:
