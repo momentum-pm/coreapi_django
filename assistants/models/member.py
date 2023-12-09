@@ -13,6 +13,10 @@ class Member(models.Model):
 
         return Thread.objects.create(member=self)
 
+    @property
+    def name(self):
+        return self.__str__()
+
     def __str__(self) -> str:
         try:
             return self.person.__str__()

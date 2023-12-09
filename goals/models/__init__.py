@@ -2,6 +2,7 @@ from .dependency import Dependency
 from .effect import Effect
 from .entity import Entity
 from .goal import Goal
+from .analyzer_assistant import AnalyzerAssistant
 from .notification import Notification
 from .person import Person
 from .property import Property

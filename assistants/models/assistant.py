@@ -37,12 +37,23 @@ class Assistant(models.Model):
             self.member = Member.objects.create()
         return super().pre_save(in_create, in_bulk, index)
 
+    def post_save(self, in_create=False, in_bulk=False, index=None) -> None:
+        if in_create:
+            self.fill_remote_id()
+
+        return super().post_save(in_create, in_bulk, index)
+
     def __str__(self) -> str:
         return self.name
 
     def get_instructions_for_run(self, member):
-        # TODO override this method for each assistant
-        return f"You are talking to {member}"
+        return self.cast().get_instructions_for_run(member)
+
+    def cast(self):
+        from goals.models import AnalyzerAssistant
+
+        if AnalyzerAssistant.objects.filter(pk=self.pk).exists():
+            return AnalyzerAssistant.objects.get(pk=self.pk)
 
     @staticmethod
     def create_broadcaster():

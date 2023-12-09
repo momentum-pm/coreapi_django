@@ -34,3 +34,8 @@ class EntityAdmin(admin.ModelAdmin):
 @admin.register(models.Effect)
 class EffectAdmin(admin.ModelAdmin):
     list_display = ["summary", "goal", "entity"]
+
+
+@admin.register(models.Person)
+class PersonADmin(admin.ModelAdmin):
+    list_display = ["name", "about", "id"]

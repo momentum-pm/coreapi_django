@@ -53,6 +53,27 @@ class GoalCreateEditSerializer(serializers.ModelSerializer):
         return instance
 
 
+class ResponsibilitySerializer(serializers.ModelSerializer):
+    class Meta:
+        model = models.Responsibility
+        fields = ["id", "people", "summary"]
+
+
+class TimelineItemSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = models.TimelineItem
+        feilds = [
+            "id",
+            "title",
+            "start",
+            "end",
+            "state",
+            "responsibilites",
+        ]
+
+    responsibilites = ResponsibilitySerializer(many=True)
+
+
 class GoalFullRetrieveSerializer(serializers.ModelSerializer):
     class Meta:
         model = models.Goal
@@ -61,13 +82,29 @@ class GoalFullRetrieveSerializer(serializers.ModelSerializer):
             "name",
             "summary",
             "dependencies",
-            "properties",
+            # "properties",
             "entities",
-            "children",
+            "subgoals",
         ]
 
+    timeline = TimelineItemSerializer(many=True)
+    properties = serializers.SerializerMethodField()
+    subgoals = serializers.SerializerMethodField()
 
-from assistants.serializers import AssistantBaseSerializer
+    def get_subgoals(self, obj):
+        subgoals = obj.subgoals.all()
+        return GoalFullRetrieveSerializer(
+            subgoals, many=True, context=self.context
+        ).data
+
+    def get_dependencies(self, obj):
+        subgoals = obj.dependencies.all()
+        return GoalBaseRetrieveSerializer(
+            subgoals, many=True, context=self.context
+        ).data
+
+
+from assistants.serializers import AssistantBaseSerializer, BaseMemberSerializer
 
 
 class GoalBaseRetrieveSerializer(serializers.ModelSerializer):
@@ -75,13 +112,13 @@ class GoalBaseRetrieveSerializer(serializers.ModelSerializer):
         model = models.Goal
         fields = [
             "id",
-            "assistant",
+            # "assistant",
             "name",
             "summary",
-            "entities",
+            # "entities",
         ]
 
-    assistant = AssistantBaseSerializer()
+    # assistant = AssistantBaseSerializer()
 
 
 ## ENtitiy Serializers
@@ -149,3 +186,11 @@ class PersonCreateSerializer(serializers.ModelSerializer):
         user = self.context.get("user")
         attrs.update(user=user)
         return attrs
+
+
+class NotificationSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = models.Notification
+        fields = ["sender", "information", "created_at"]
+
+    sender = BaseMemberSerializer()

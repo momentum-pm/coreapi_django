@@ -11,7 +11,7 @@ from pathlib import Path
 commands = {
     "createsuperuser": {
         "file": "createsuperuser",
-        "kwargs": ["username", "password"],
+        "kwargs": ["username", "password", "first_name", "last_name", "about"],
         "about": "creates a super user with given username and password",
     },
     "collectactions": {

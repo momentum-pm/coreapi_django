@@ -13,4 +13,4 @@ psql postgres://postgres:$POSTGRES_ROOT_PASSWORD@$POSTGRES_HOST:$POSTGRES_PORT/p
 
 python manage.py migrate
 python shell.py collectactions
-python shell.py createsuperuser  $SUPERUSER_USERNAME $SUPERUSER_PASSWORD
+python shell.py createsuperuser  $SUPERUSER_USERNAME $SUPERUSER_PASSWORD Reza Moslemi Software

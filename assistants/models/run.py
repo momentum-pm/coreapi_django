@@ -1,7 +1,10 @@
 from utils import models
 
 
-class Run(models.Model):
+class Run(models.CreatableModel):
+    class Meta:
+        ordering = ["-created_at"]
+
     QUEUED = "queued"
     remote_uuid = models.TextField()
     thread = models.ForeignKey(

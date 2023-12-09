@@ -31,6 +31,11 @@ class LLM:
                     purpose=name,
                 )
                 file_ids.append(file.id)
+        print("CREATEING ASSISTANT")
+        print(name)
+        print(instructions)
+        print(tools)
+        print(file_ids)
         assistant = self.client.beta.assistants.create(
             name=name,
             instructions=instructions,
