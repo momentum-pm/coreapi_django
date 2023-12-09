@@ -8,15 +8,15 @@ urlpatterns = [
         include("authentication.urls.v1", namespace="authentication"),
     ),
     path(
-        "people/",
-        include("people.urls.v1", namespace="people"),
+        "files/",
+        include("files.urls.v1", namespace="files"),
     ),
     path(
-        "chat/",
-        include("chat.urls.v1", namespace="chat"),
+        "assistants/",
+        include("assistants.urls.v1", namespace="assistants"),
     ),
     path(
-        "assistant/",
-        include("assistant.urls.v1", namespace="assistant"),
+        "goals/",
+        include("goals.urls.v1", namespace="goals"),
     ),
 ]

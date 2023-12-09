@@ -68,9 +68,9 @@ INSTALLED_APPS = [
     "drf_yasg",
     "rest_framework",
     "authentication",
-    "chat",
-    "people",
-    "assistant",
+    "assistants",
+    "goals",
+    "files",
 ]
 REST_FRAMEWORK = {
     "DEFAULT_AUTHENTICATION_CLASSES": [

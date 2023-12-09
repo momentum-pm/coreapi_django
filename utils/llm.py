@@ -3,68 +3,92 @@ from django.conf import settings
 
 
 class LLM:
-    @staticmethod
-    def from_chat(prompt, chat):
-        from chat.models import Member
+    DEFAULT_MODEL = "gpt-4-1106-preview"
+    client = OpenAI()
 
-        messages = []
-        messages.append({"role": "system", "content": prompt})
-
-        for message in chat.messages.all().order_by("created_at"):
-            if message.member.role == Member.PERSON:
-                role = "user"
-            elif message.member.role == Member.ASSISTANT:
-                role = "assistant"
-
-            messages.append({"role": role, "content": message.content})
-        print("REQUESTING", messages)
-        if settings.ENV.LLM_REQUESTS:
-            client = OpenAI(api_key=settings.ENV.OPEN_AI_KEY)
-            completion = client.chat.completions.create(
-                model="gpt-3.5-turbo",
-                messages=messages,
-            )
-            text_response = completion.choices[0].message.content
-        else:
-            text_response = "Yes"
-        return text_response
-
-    def __init__(self, api_key) -> None:
-        self.client = OpenAI(api_key)
-        pass
-
-    def process(self, message):
-        pass
-
-    def get_next_message(self):
-        pass
-
-    def get_output(
-        self, prompt, query, model="gpt-3.5-turbo", format="json_object", debug=False
+    def create_assistant_id(
+        self,
+        name,
+        instructions,
+        functions=[],
+        file_paths=[],
     ):
-        import json
+        tools = []
 
-        completion = self.client.chat.completions.create(
-            model=model,
-            response_format={"type": format},
-            messages=[
-                {"role": "system", "content": prompt},
-                {"role": "user", "content": query},
-            ],
+        # loading functions
+        for function in functions:
+            tools.append({"type": "function", "function": function})
+        # loading files
+        file_ids = []
+        if len(file_paths) > 0:
+            # appending retrieval tooll
+            tools.append({"type": "retrieval"})
+
+            # creating and appending files
+            for file_path in file_paths:
+                file = self.client.files.create(
+                    file=open(file_path, "rb"),
+                    purpose=name,
+                )
+                file_ids.append(file.id)
+        assistant = self.client.beta.assistants.create(
+            name=name,
+            instructions=instructions,
+            model=self.DEFAULT_MODEL,
+            tools=tools,
+            file_ids=file_ids,
         )
-        text_response = completion["choices"][0]["messages"]["content"]
-        if format == "json_object":
-            response = json.loads(text_response)
-        else:
-            response = text_response
-        if debug:
-            print(f"Response ({type(response)}): {text_response}")
-        return response
+        return assistant.id
+
+    def create_thread_id(self):
+        thread = self.client.beta.threads.create()
+        return thread.id
+
+    def create_run_id(
+        self,
+        thread_id,
+        assistant_id,
+        instructions,
+    ):
+        run = self.client.beta.threads.runs.create(
+            thread_id=thread_id,
+            assistant_id=assistant_id,
+            instructions=instructions,
+        )
+        return run.id
+
+    def get_run_status(self, run_id, thread_id):
+        return self.client.beta.threads.runs.retrieve(
+            thread_id=thread_id, run_id=run_id
+        )["status"]
+
+    def get_message_id(self, content, file_paths, thread_id):
+        file_ids = []
+        for file_path in file_paths:
+            file = self.client.files.create(
+                file=open(file_path.file.file, "rb"),
+                purpose="assistant",
+            )
+            file_ids.append(file.id)
+        message = self.client.beta.threads.messages.create(
+            thread_id=thread_id,
+            role="user",
+            content=content,
+            file_ids=file_ids,
+        )
+        return message.id
+
+    def get_messages(self, thread_id):
+        messages = self.client.beta.threads.messages.list(thread_id=thread_id)
+        return messages.data
 
     def get_embedding(self, text):
-        completion = self.client.moderations.create(
+        completion = self.client.embeddings.create(
             input=[text],
             model="text-embedding-ada-002",
         )
         embedding = completion.data[0].embedding
         return embedding
+
+
+llm = LLM()
