@@ -8,11 +8,11 @@ class AnalyzerAssistant(Assistant):
         to="Goal", related_name="assistant", on_delete=models.CASCADE
     )
 
-    def pre_save(self, in_create=False, in_bulk=False, index=None) -> None:
-        if in_create:
-            self.name = f"{self.goal.name} Goal Manager Assistant"
-            self.instructions = (
-                f"""
+    def get_default_name(self):
+        return f"{self.goal.name} Goal Manager Assistant"
+
+    def get_default_instructions(self):
+        return f"""
                 You are an assistant who interacts with a user to get new updates on a given goal.
                 The goal is described in the JSON format:
                 id: {self.goal.id}
@@ -20,10 +20,7 @@ class AnalyzerAssistant(Assistant):
                 summary:{self.goal.summary}
                 The updates may be changes in people responsibilities on the task, or adding new engaged people with new responsibilities.
                 The updates may be changes on the state of a property of the task. All of the properties of the task to be monitored are:
-            """,
-            )
-
-        return super().pre_save(in_create, in_bulk, index)
+            """
 
     def get_instructions_for_run(self, member):
         unseen_notifications = self.goal.notifications.filter(is_seen=False)
@@ -53,28 +50,26 @@ class AnalyzerAssistant(Assistant):
             {goal}
         """
 
-    def post_save(self, in_create=False, in_bulk=False, index=None) -> None:
-        if in_create:
-            Function.objects.create(
-                assistant=self,
-                specification={
-                    "name": "state_change_confirmed",
-                    "description": """
+    def define_functions(self):
+        Function.objects.create(
+            assistant=self,
+            specification={
+                "name": "state_change_confirmed",
+                "description": """
                         When you detect any changes in people engaged, or changes in the state of properties of the task,
                         you should first get owner's approval on to apply the changes,
                         and the report information that caused this change alongside with the changes.
                         information: a brief of the new information that caused the changes""",
-                    "parameters": {
-                        "type": "object",
-                        "properties": {
-                            "id": {
-                                "type": "string",
-                                "description": "The city and state e.g. San Francisco, CA",
-                            },
-                            "timeline": {},
+                "parameters": {
+                    "type": "object",
+                    "properties": {
+                        "id": {
+                            "type": "string",
+                            "description": "The city and state e.g. San Francisco, CA",
                         },
-                        "required": ["location"],
+                        "timeline": {},
                     },
+                    "required": ["location"],
                 },
-            )
-        return super().post_save(in_create, in_bulk, index)
+            },
+        )

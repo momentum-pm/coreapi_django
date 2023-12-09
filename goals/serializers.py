@@ -88,7 +88,7 @@ class GoalFullRetrieveSerializer(serializers.ModelSerializer):
         ]
 
     timeline = TimelineItemSerializer(many=True)
-    properties = serializers.SerializerMethodField()
+    # properties = serializers.SerializerMethodField()
     subgoals = serializers.SerializerMethodField()
 
     def get_subgoals(self, obj):

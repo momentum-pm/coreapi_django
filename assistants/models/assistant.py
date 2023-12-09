@@ -34,11 +34,16 @@ class Assistant(models.Model):
         if in_create:
             from .member import Member
 
+            if not self.name:
+                self.name = self.get_default_name()
+            if not self.instructions:
+                self.instructions = self.get_default_instructions()
             self.member = Member.objects.create()
         return super().pre_save(in_create, in_bulk, index)
 
     def post_save(self, in_create=False, in_bulk=False, index=None) -> None:
         if in_create:
+            self.define_functions()
             self.fill_remote_id()
 
         return super().post_save(in_create, in_bulk, index)

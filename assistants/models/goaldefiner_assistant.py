@@ -10,10 +10,11 @@ class GoalDefinerAssistant(Assistant):
         else:
             return GoalDefinerAssistant.objects.create()
 
-    def pre_save(self, in_create=False, in_bulk=False, index=None) -> None:
-        if in_create:
-            self.name = f"Goal Definer Assistant"
-            self.instructions = """
+    def get_default_name(self):
+        return "Goal Definer Assistant"
+
+    def get_default_instructions(self):
+        return """
                 Go through these questions one by one. Ask a question, get the answer, go to next one
                 * What is the goal?
                 * Clarify the goal by asking some questions but don't ask about the execution plan, steps and milestones.
@@ -28,39 +29,34 @@ class GoalDefinerAssistant(Assistant):
                 
             """
 
-        return super().pre_save(in_create, in_bulk, index)
-
     def get_instructions_for_run(self, member):
         return f"""
             You are talking to {member.__str__()}, and today is {models.now().date()}.
         """
 
-    def post_save(self, in_create=False, in_bulk=False, index=None) -> None:
-        if in_create:
-            pass
-            # Function.objects.create(
-            #     assistant=self,
-            #     specification={
-            #         "name": "new_goal_confirmed",
-            #         "description": """
-            #         Once you have interacted with the user and became clear on the goal, get their approval,
-            #         and after they approved to finalize the goal, use this tool to send information of the goal
-            #         """,
-            #         "parameters": {
-            #             "type": "object",
-            #             "properties": {
-            #                 "name": {
-            #                     "type": "string",
-            #                     "description": "A name for website",
-            #                 },
-            #                 "summary": {
-            #                     "type": "string",
-            #                     "description": "A summary of the goal",
-            #                 },
-            #                 "subgoals": {"type": "list"},
-            #             },
-            #             "required": ["location"],
-            #         },
-            #     },
-            # )
-        return super().post_save(in_create, in_bulk, index)
+    def define_functions(self):
+        Function.objects.create(
+            assistant=self,
+            specification={
+                "name": "new_goal_confirmed",
+                "description": """
+                    Once you have interacted with the user and became clear on the goal, get their approval,
+                    and after they approved to finalize the goal, use this tool to send information of the goal
+                    """,
+                "parameters": {
+                    "type": "object",
+                    "properties": {
+                        "name": {
+                            "type": "string",
+                            "description": "A name for website",
+                        },
+                        "summary": {
+                            "type": "string",
+                            "description": "A summary of the goal",
+                        },
+                        "subgoals": {"type": "list"},
+                    },
+                    "required": ["location"],
+                },
+            },
+        )
