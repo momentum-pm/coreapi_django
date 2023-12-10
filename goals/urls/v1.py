@@ -17,6 +17,14 @@ urlpatterns = [
         view=views.GoalsView.as_edit_delete_retrieve(),
     ),
     re_path(
+        route=r"^goals/(?P<pk>[0-9]+)/initiate/$",
+        view=views.GoalsInitiateView.as_retrieve(),
+    ),
+    re_path(
+        route=r"^goals/(?P<pk>[0-9]+)/run/$",
+        view=views.GoalsRunView.as_retrieve(),
+    ),
+    re_path(
         route=r"^goals/(?P<pk>[0-9]+)/create-assistant/$",
         view=views.GoalsView.as_view({"post": "create_assistant"}),
     ),

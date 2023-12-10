@@ -42,6 +42,28 @@ class GoalsView(
             return response
 
 
+class GoalsInitiateView(
+    views.RetrieveModelMixin,
+):
+    permission_classes = [permissions.AllowAny]
+    base_queryset = models.Goal.objects.all()
+
+    response_serializer = {
+        "retrieve": serializers.GoalInitiateSerializer,
+    }
+
+
+class GoalsRunView(
+    views.RetrieveModelMixin,
+):
+    permission_classes = [permissions.AllowAny]
+    base_queryset = models.Goal.objects.all()
+
+    response_serializer = {
+        "retrieve": serializers.GoalRunSerializer,
+    }
+
+
 class EntitiesView(
     views.CreateModelMixin,
     views.BulkCreateModelMixin,
