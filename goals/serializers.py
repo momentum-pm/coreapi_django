@@ -133,6 +133,8 @@ class GoalRunSerializer(GoalFullRetrieveSerializer):
         ]
 
 
+
+
 class GoalInitiateSerializer(GoalFullRetrieveSerializer):
     class Meta:
         model = models.Goal

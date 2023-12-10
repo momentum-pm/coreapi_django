@@ -39,3 +39,13 @@ class EffectAdmin(admin.ModelAdmin):
 @admin.register(models.Person)
 class PersonADmin(admin.ModelAdmin):
     list_display = ["name", "about", "id"]
+
+
+@admin.register(models.Notification)
+class NotificationAdmin(admin.ModelAdmin):
+    list_display = ["information", "sender", "goal", "is_seen"]
+
+
+@admin.register(models.Responsibility)
+class ResponsibilityAdmin(admin.ModelAdmin):
+    list_display = ["summary", "status", "person", "goal"]

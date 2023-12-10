@@ -43,13 +43,6 @@ class Goal(models.CreatableModel):
         through="Effect",
     )
 
-    def post_save(self, in_create=False, in_bulk=False, index=None) -> None:
-        if in_create:
-            from .analyzer_assistant import AnalyzerAssistant
-
-            self.assistant = AnalyzerAssistant.objects.create(goal=self)
-        return super().post_save(in_create, in_bulk, index)
-
     def __str__(self) -> str:
         return self.name
 

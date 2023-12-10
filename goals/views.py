@@ -31,6 +31,16 @@ class GoalsView(
         "retrieve": serializers.GoalFullRetrieveSerializer,
     }
 
+    @views.action(methods=["post"], detail=True)
+    def create_assistant(self, *args, **kwargs):
+        try:
+            obj = self.get_object()
+            models.AnalyzerAssistant.objects.filter(goal=obj).delete()
+            models.AnalyzerAssistant.objects.create(goal=obj)
+            return responses.Ok(message=self.get_delete_message(obj))
+        except responses.BadRequest as response:
+            return response
+
 
 class EntitiesView(
     views.CreateModelMixin,

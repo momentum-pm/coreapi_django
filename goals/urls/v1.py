@@ -16,6 +16,10 @@ urlpatterns = [
         route=r"^goals/(?P<pk>[0-9]+)/$",
         view=views.GoalsView.as_edit_delete_retrieve(),
     ),
+    re_path(
+        route=r"^goals/(?P<pk>[0-9]+)/create-assistant/$",
+        view=views.GoalsView.as_view({"post": "create_assistant"}),
+    ),
     # dependency
     # properties
     # records
