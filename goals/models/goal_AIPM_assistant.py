@@ -88,7 +88,7 @@ class GoalAIPMAssistant(Assistant):
         # )
         return default_instructions
 
-    def get_instructions_for_run(self, member, goal_general_info:dict, goal_update_info:dict):
+    def get_instructions_for_run(self, member, goal_general_info:GoalPreDefineSerializer, goal_update_info:GoalThreadSerializer):
         unseen_notifications = self.goal.notifications.filter(is_seen=False)
         if unseen_notifications.exists():
             from goals.serializers import (
