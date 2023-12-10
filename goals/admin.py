@@ -16,14 +16,14 @@ class DependencyAdmin(admin.ModelAdmin):
     ]
 
 
-@admin.register(models.Property)
-class PropertyAdmin(admin.ModelAdmin):
+@admin.register(models.Metric)
+class MetricAdmin(admin.ModelAdmin):
     list_display = ["name", "summary"]
 
 
-@admin.register(models.Record)
-class RecordAdmin(admin.ModelAdmin):
-    list_display = ["summary", "property", "goal", "created_at"]
+@admin.register(models.MetricValue)
+class MetricValueAdmin(admin.ModelAdmin):
+    list_display = ["value", "metric", "goal", "created_at"]
 
 
 @admin.register(models.Entity)

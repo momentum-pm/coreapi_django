@@ -6,14 +6,13 @@ class Action(models.CreatableModel):
         ordering = ["-created_at"]
 
     summary = models.TextField()
-
-
-"""
-Action: {
-time,
-summary,
-responsibilites_effects: [{"responsibility","state"}]
-created_records: [ {"property","value"}]
-}
-"""
-#
+    goal = models.ForeignKey(
+        to="Goal",
+        related_name="actions",
+        on_delete=models.CASCADE,
+    )
+    person = models.ForeignKey(
+        to="Person",
+        related_name="actions",
+        on_delete=models.CASCADE,
+    )

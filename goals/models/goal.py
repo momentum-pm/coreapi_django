@@ -33,10 +33,9 @@ class Goal(models.CreatableModel):
         related_name="dependent_goals",
         through="Dependency",
     )
-    properties = models.ManyToManyField(
-        to="Property",
+    metrics = models.ManyToManyField(
+        to="Metric",
         related_name="goals",
-        through="Record",
     )
     entities = models.ManyToManyField(
         to="Entity",
@@ -48,8 +47,25 @@ class Goal(models.CreatableModel):
         if in_create:
             from .analyzer_assistant import AnalyzerAssistant
 
-            self.assistant = AnalyzerAssistant.objects.create(goal=self.goal)
+            self.assistant = AnalyzerAssistant.objects.create(goal=self)
         return super().post_save(in_create, in_bulk, index)
 
     def __str__(self) -> str:
         return self.name
+
+    @property
+    def last_actions(self):
+        return self.actions.all()
+
+    @property
+    def latest_metric_values(self):
+        metric_values = []
+        from .metric_value import MetricValue
+
+        for metric in self.metrics.all():
+            latest_metric_value = MetricValue.objects.filter(
+                goal=self, metric=metric
+            ).first()
+            if latest_metric_value:
+                metric_values.append(latest_metric_value)
+        return metric_values

@@ -14,51 +14,6 @@ class DependencyNestedSerializer(serializers.ModelSerializer):
         return attrs
 
 
-class RecordNestedSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = models.Record
-        fields = ["data", "summary", "property"]
-
-    def validate(self, attrs):
-        attrs = super().validate(attrs)
-        attrs.update(goal=self.context.get("goal"))
-        return attrs
-
-
-class GoalCreateEditSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = models.Goal
-        fields = [
-            "name",
-            "summary",
-            "owner",
-            # "parent",
-            # "records",
-            # "dependencies",
-        ]
-
-    # dependencies = serializers.ListSerializer(child=DependencyNestedSerializer())
-    # records = serializers.ListSerializer(child=RecordNestedSerializer())
-
-    def get_nested_context(self, key) -> dict:
-        if key == "dependencies":
-            return {"source": self.instance}
-        if key == "records":
-            return {"goal": self.instance}
-        return {}
-
-    def create(self, validated_data):
-        instance = super().create(validated_data)
-        instance.fill_assistant()
-        return instance
-
-
-class ActionCompactSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = models.Action
-        fields = ["id", "summary", "created_at"]
-
-
 class PersonRetrieveSerializer(serializers.ModelSerializer):
     class Meta:
         model = models.Person
@@ -68,24 +23,56 @@ class PersonRetrieveSerializer(serializers.ModelSerializer):
 class ResponsibilitySerializer(serializers.ModelSerializer):
     class Meta:
         model = models.Responsibility
-        fields = ["id", "people", "summary", "latest_action", "state"]
+        fields = ["id", "person", "summary", "status"]
 
-    people = PersonRetrieveSerializer(many=True)
-    latest_action = ActionCompactSerializer()
+    person = PersonRetrieveSerializer()
 
 
-class CompactPropertySerializer(serializers.ModelSerializer):
+class ActionCompactSerializer(serializers.ModelSerializer):
     class Meta:
-        model = models.Property
+        model = models.Action
+        fields = ["id", "summary", "created_at", "person"]
+
+    person = PersonRetrieveSerializer()
+
+
+class MetricSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = models.Metric
         fields = ["id", "name", "summary"]
 
 
-class RecordSerializer(serializers.ModelSerializer):
+class MetricValueSerializer(serializers.ModelSerializer):
     class Meta:
-        model = models.Record
-        fields = ["id", "created_at", "summary", "action", "property"]
+        model = models.MetricValue
+        fields = ["id", "created_at", "value", "metric"]
 
-    property = CompactPropertySerializer()
+    metric = serializers.SerializerMethodField()
+
+    def get_metric(self, obj):
+        return obj.metric.name
+
+
+class RelatedGoalSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = models.Goal
+        fields = ["name", "summary"]
+
+
+class DependencyTargetSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = models.Dependency
+        fields = ["summary", "target"]
+
+    target = RelatedGoalSerializer()
+
+
+class DependencySourceSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = models.Dependency
+        fields = ["summary", "source"]
+
+    source = RelatedGoalSerializer()
 
 
 class GoalFullRetrieveSerializer(serializers.ModelSerializer):
@@ -97,30 +84,71 @@ class GoalFullRetrieveSerializer(serializers.ModelSerializer):
             "summary",
             "start",
             "end",
+            "state",
+            "last_actions",
             "responsibilities",
-            "last_metrics",
-            "subgoals",
+            "metrics",
+            "latest_metric_values",
             "dependencies",
+            "dependents",
+            "subgoals",
+            "parent",
         ]
 
+    last_actions = ActionCompactSerializer(many=True)
     responsibilities = ResponsibilitySerializer(many=True)
-    last_metrics = serializers.SerializerMethodField()
-
-    def get_last_metrics(self, obj):
-        records = []
-        for property in obj.properties.all().distinct():
-            record = models.Record.objects.filter(goal=obj, property=property).first()
-            records.append(record)
-        return RecordSerializer(records, many=True).data
-
-    def get_dependencies(self, obj):
-        subgoals = obj.dependencies.all()
-        return GoalBaseRetrieveSerializer(
-            subgoals, many=True, context=self.context
-        ).data
+    metrics = MetricSerializer(many=True)
+    latest_metric_values = MetricValueSerializer(many=True)
+    dependencies = DependencySourceSerializer(many=True)
+    dependents = DependencyTargetSerializer(many=True)
+    subgoals = RelatedGoalSerializer(many=True)
+    parent = RelatedGoalSerializer(many=True)
 
 
-from assistants.serializers import AssistantBaseSerializer, BaseMemberSerializer
+class GoalCreateEditSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = models.Goal
+        fields = [
+            "owner",
+            "name",
+            "summary",
+            "metrics",
+            "dependencies",
+            "dependents",
+            "subgoals",
+            "parent",
+        ]
+
+
+class GoalRunSerializer(GoalFullRetrieveSerializer):
+    class Meta:
+        model = models.Goal
+        fields = [
+            "start",
+            "end",
+            "state",
+            "last_actions",
+            "responsibilities",
+            "latest_metric_values",
+        ]
+
+
+class GoalInitiateSerializer(GoalFullRetrieveSerializer):
+    class Meta:
+        model = models.Goal
+        fields = [
+            "id",
+            "name",
+            "summary",
+            "metrics",
+            "dependencies",
+            "dependents",
+            "subgoals",
+            "parent",
+        ]
+
+
+from assistants.serializers import BaseMemberSerializer
 
 
 class GoalBaseRetrieveSerializer(serializers.ModelSerializer):

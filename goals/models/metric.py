@@ -1,7 +1,7 @@
 from utils import models
 
 
-class Property(models.Model):
+class Metric(models.Model):
     name = models.CharField(max_length=255)
     summary = models.TextField()
 
