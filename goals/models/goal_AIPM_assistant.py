@@ -73,14 +73,10 @@ class GoalAIPMAssistant(Assistant):
             goal_end=goal_end,
             goal_responsibilites=goal_responsibilites,
             goal_latest_actions=self.goal.goal_latest_actions,
-            goal_related_people=self.goal.people,
             goal_subgoals=goal_subgoals,
             goal_entities=self.goal.Entities,
             goal_risks=self.goal.risks,
             goal_dependencies=goal_dependcies,
-            goal_execution_plan=self.goal.goal_execution_plan,
-            goal_project_timeline=self.goal.timeline,
-            goal_people_tasks=self.goal.tasks
         )
         return goal_context
 
