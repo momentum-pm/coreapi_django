@@ -18,4 +18,4 @@ class MetricValue(models.CreatableModel):
     )
 
     def __str__(self) -> str:
-        return self.summary
+        return self.value
