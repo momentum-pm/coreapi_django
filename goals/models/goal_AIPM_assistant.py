@@ -64,17 +64,31 @@ class GoalAIPMAssistant(Assistant):
         return goal_context
 
     def get_default_instructions(self):
-        default_instructions = """
-               You are the project manager of this goal: {goal_name} 
-               """.format(
-            self.goal.name
-        )
-        default_instructions += """Context is: {context}""".format(
-            context=self._create_context_str()
-        )
-        return
+        default_instructions= """
+                    You are the project-manager of {goal_name} goal which said with details in context.
+                    You are responsible for all factors of the project and you should update project factors due to any new information will be given to you about the project.
+                    Just update the timeline according to the changes
+                    For example if someone gets sick, you should extend project timeline.
+                    If a task is done or finished already, you should remove its time from timeline.
+                    If a new subtask is added to project, you should estimate its time and update project timeline.
+                    If any event happened that affects the project's time significantly, the risks should be updated.
+                    You should list all of changes and updates should be applied in the system based on the new information and events user will gave you.
+                    The new information will be given in messages.
+                    Handle the project carefully. You are the project-manager.
+                    Any new information come to you specify any change in all of the variables of the system specially the execution plan and timeline of the project.""".format(
+                    goal_name=self.goal.name
 
-    def get_instructions_for_run(self, member):
+        # default_instructions = """
+        #        You are the project manager of this goal: {goal_name} 
+        #        """.format(
+        #     self.goal.name
+        # )
+        # default_instructions += """Context is: {context}""".format(
+        #     context=self._create_context_str()
+        # )
+        return default_instructions
+
+    def get_instructions_for_run(self, member, goal_general_info:dict, goal_update_info:dict):
         unseen_notifications = self.goal.notifications.filter(is_seen=False)
         if unseen_notifications.exists():
             from goals.serializers import (
