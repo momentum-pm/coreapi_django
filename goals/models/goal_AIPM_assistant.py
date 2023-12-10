@@ -1,3 +1,4 @@
+from utils import serializers
 from utils import models
 
 from assistants.models import Assistant, Function
@@ -11,7 +12,20 @@ class GoalAIPMAssistant(Assistant):
     def get_default_name(self):
         return f"{self.goal.name} Goal AI PM Assistant"
 
-    def _create_context_str(self):
+    def _create_context_str(self, goal_general_info, goal_update_info):
+        ## goal general info
+        goal_id = goal_general_info.get("id")
+        goal_name = goal_general_info.get("name", "")
+        goal_summary = goal_general_info.get("summary", "")
+
+        ## goal update info
+        goal_start = goal_update_info.get("start")
+        goal_end = goal_update_info.get("end")
+        goal_responsibilites = goal_update_info.get("responsibilites")
+        goal_latest_metric_states = goal_update_info.get("latest_metrics_states")
+        goal_subgoals = goal_update_info.get("subgoals")
+        goal_dependcies = goal_update_info.get("dependcies")
+
         goal_context = """
                         Each goal has a owner which is a person. Also each goal as an AI PM (artificial Intelligence project manager). Whenever new information comes in from assistants, Systems, Other PMs, or the owner, the PM will synthesize the info, find out what this info means, what actions it should take, and bring the actions to the owner. If the owner confirms, it does the actions.
                         Each goal also can have some subgoals. Goals (or subgoals with together) can be depenedant to each other. They can be parent/child. For example each goal is a parent for its subgoals.
@@ -28,9 +42,13 @@ class GoalAIPMAssistant(Assistant):
                         Goal: {goal_name}
                         Summary: {goal_summary}
                         --------------------------------------------------------------------------------------------------------------------------------
-                        Latest Key Metrics Data: {goal_key_metrics}
+                        Latest Key Metrics Data: {goal_latest_metric_states}
                         --------------------------------------------------------------------------------------------------------------------------------
                         Summary of Latest Actions: {goal_latest_actions}
+                        --------------------------------------------------------------------------------------------------------------------------------
+                        Goal start date is : {goal_start} and end is : {goal_end}
+                        --------------------------------------------------------------------------------------------------------------------------------
+                        Goal's subtasks and their reposibles are: {goal_responsibilites}
                         --------------------------------------------------------------------------------------------------------------------------------
                         Related People: {goal_related_people}
                         --------------------------------------------------------------------------------------------------------------------------------
@@ -48,18 +66,21 @@ class GoalAIPMAssistant(Assistant):
                         --------------------------------------------------------------------------------------------------------------------------------
                         People Tasks: {goal_people_tasks}
                        """.format(
-            goal_name=self.goal.name,
-            goal_summary=self.goal.summary,
-            goal_key_metrics=self.goal.goal_key_metrics,
+            goal_name=goal_name,
+            goal_summary=goal_summary,
+            goal_latest_metric_states=goal_latest_metric_states,
+            goal_start=goal_start,
+            goal_end=goal_end,
+            goal_responsibilites=goal_responsibilites,
             goal_latest_actions=self.goal.goal_latest_actions,
             goal_related_people=self.goal.people,
-            goal_subgoals=self.goal.subgoals,
+            goal_subgoals=goal_subgoals,
             goal_entities=self.goal.Entities,
             goal_risks=self.goal.risks,
-            goal_dependencies=self.goal.Dependencies,
+            goal_dependencies=goal_dependcies,
             goal_execution_plan=self.goal.goal_execution_plan,
             goal_project_timeline=self.goal.timeline,
-            goal_people_tasks=self.goal.tasks,
+            goal_people_tasks=self.goal.tasks
         )
         return goal_context
 
@@ -88,7 +109,7 @@ class GoalAIPMAssistant(Assistant):
         # )
         return default_instructions
 
-    def get_instructions_for_run(self, member, goal_general_info:GoalPreDefineSerializer, goal_update_info:GoalThreadSerializer):
+    def get_instructions_for_run(self, member, goal_general_info:serializers.GoalPreDefineSerializer, goal_update_info:serializers.GoalThreadSerializer):
         unseen_notifications = self.goal.notifications.filter(is_seen=False)
         if unseen_notifications.exists():
             from goals.serializers import (
