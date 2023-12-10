@@ -1,6 +1,7 @@
 from utils import serializers
 
 from . import models
+from assistants.serializers import BaseMemberSerializer
 
 
 class DependencyNestedSerializer(serializers.ModelSerializer):
@@ -75,6 +76,14 @@ class DependencySourceSerializer(serializers.ModelSerializer):
     source = RelatedGoalSerializer()
 
 
+class NotificationSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = models.Notification
+        fields = ["sender", "information", "created_at"]
+
+    sender = BaseMemberSerializer()
+
+
 class GoalFullRetrieveSerializer(serializers.ModelSerializer):
     class Meta:
         model = models.Goal
@@ -85,6 +94,7 @@ class GoalFullRetrieveSerializer(serializers.ModelSerializer):
             "start",
             "end",
             "state",
+            "notifications",
             "last_actions",
             "responsibilities",
             "metrics",
@@ -95,6 +105,7 @@ class GoalFullRetrieveSerializer(serializers.ModelSerializer):
             "parent",
         ]
 
+    notifications = NotificationSerializer(many=True)
     last_actions = ActionCompactSerializer(many=True)
     responsibilities = ResponsibilitySerializer(many=True)
     metrics = MetricSerializer(many=True)
@@ -126,13 +137,12 @@ class GoalRunSerializer(GoalFullRetrieveSerializer):
         fields = [
             "start",
             "end",
+            "notifications",
             "state",
             "last_actions",
             "responsibilities",
             "latest_metric_values",
         ]
-
-
 
 
 class GoalInitiateSerializer(GoalFullRetrieveSerializer):
@@ -148,9 +158,6 @@ class GoalInitiateSerializer(GoalFullRetrieveSerializer):
             "subgoals",
             "parent",
         ]
-
-
-from assistants.serializers import BaseMemberSerializer
 
 
 class GoalBaseRetrieveSerializer(serializers.ModelSerializer):
@@ -232,14 +239,6 @@ class PersonCreateSerializer(serializers.ModelSerializer):
         user = self.context.get("user")
         attrs.update(user=user)
         return attrs
-
-
-class NotificationSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = models.Notification
-        fields = ["sender", "information", "created_at"]
-
-    sender = BaseMemberSerializer()
 
 
 # goal: developing a website (responsibiliets: Reza should manage the interface between Dave and max)
