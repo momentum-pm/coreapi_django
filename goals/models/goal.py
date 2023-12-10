@@ -7,6 +7,17 @@ class Goal(models.CreatableModel):
         related_name="owned_goals",
         on_delete=models.CASCADE,
     )
+    UPCOMMING = "upcomming"
+    ONGOING = "ongoing"
+    PASSED = "passed"
+    STATE_CHOICES = (
+        (UPCOMMING, UPCOMMING),
+        (ONGOING, ONGOING),
+        (PASSED, PASSED),
+    )
+    start = models.DateField(null=True, blank=True, default=None)
+    end = models.DateField(null=True, blank=True, default=None)
+    state = models.CharField(choices=STATE_CHOICES, default=UPCOMMING)
     name = models.CharField(max_length=255)
     summary = models.TextField(blank=True)
     parent = models.ForeignKey(

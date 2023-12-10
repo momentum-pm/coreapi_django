@@ -39,14 +39,11 @@ class AnalyzerAssistant(Assistant):
         else:
             notifications_context = ""
         goal = GoalFullRetrieveSerializer(goal=self.goal).data
+
         return f"""
             You are talking to {member.__str__()}, and today is {models.now().date()}.
             {notifications_context}
             The latest plan for the goal is:
-            
-            The latest status of the properties of the goal are:
-
-            People currnet state of the goal is:
             {goal}
         """
 
@@ -67,7 +64,6 @@ class AnalyzerAssistant(Assistant):
                             "type": "string",
                             "description": "The city and state e.g. San Francisco, CA",
                         },
-                        "timeline": {},
                     },
                     "required": ["location"],
                 },

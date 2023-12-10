@@ -17,6 +17,9 @@ class Record(models.CreatableModel):
         on_delete=models.CASCADE,
     )
     data = models.JSONField(blank=True, null=True, default=None)
+    action = models.ForeignKey(
+        to="Action", on_delete=models.CASCADE, related_name="records"
+    )
 
     def __str__(self) -> str:
         return self.summary

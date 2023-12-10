@@ -41,7 +41,7 @@ class GoalDefinerAssistant(Assistant):
                 "name": "new_goal_confirmed",
                 "description": """
                     Once you have interacted with the user and became clear on the goal, get their approval,
-                    and after they approved to finalize the goal, use this tool to send information of the goal
+                    and after they approved to finalize the goal, use this tool to notify us about the new goal
                     """,
                 "parameters": {
                     "type": "object",
@@ -56,7 +56,7 @@ class GoalDefinerAssistant(Assistant):
                         },
                         "subgoals": {"type": "list"},
                     },
-                    "required": ["location"],
+                    "required": ["name","summary"],
                 },
             },
         )

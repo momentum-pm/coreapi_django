@@ -53,25 +53,39 @@ class GoalCreateEditSerializer(serializers.ModelSerializer):
         return instance
 
 
+class ActionCompactSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = models.Action
+        fields = ["id", "summary", "created_at"]
+
+
+class PersonRetrieveSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = models.Person
+        fields = ["id", "name", "about"]
+
+
 class ResponsibilitySerializer(serializers.ModelSerializer):
     class Meta:
         model = models.Responsibility
-        fields = ["id", "people", "summary"]
+        fields = ["id", "people", "summary", "latest_action", "state"]
+
+    people = PersonRetrieveSerializer(many=True)
+    latest_action = ActionCompactSerializer()
 
 
-class TimelineItemSerializer(serializers.ModelSerializer):
+class CompactPropertySerializer(serializers.ModelSerializer):
     class Meta:
-        model = models.TimelineItem
-        feilds = [
-            "id",
-            "title",
-            "start",
-            "end",
-            "state",
-            "responsibilites",
-        ]
+        model = models.Property
+        fields = ["id", "name", "summary"]
 
-    responsibilites = ResponsibilitySerializer(many=True)
+
+class RecordSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = models.Record
+        fields = ["id", "created_at", "summary", "action", "property"]
+
+    property = CompactPropertySerializer()
 
 
 class GoalFullRetrieveSerializer(serializers.ModelSerializer):
@@ -81,21 +95,23 @@ class GoalFullRetrieveSerializer(serializers.ModelSerializer):
             "id",
             "name",
             "summary",
-            "dependencies",
-            # "properties",
-            "entities",
+            "start",
+            "end",
+            "responsibilities",
+            "last_metrics",
             "subgoals",
+            "dependencies",
         ]
 
-    timeline = TimelineItemSerializer(many=True)
-    # properties = serializers.SerializerMethodField()
-    subgoals = serializers.SerializerMethodField()
+    responsibilities = ResponsibilitySerializer(many=True)
+    last_metrics = serializers.SerializerMethodField()
 
-    def get_subgoals(self, obj):
-        subgoals = obj.subgoals.all()
-        return GoalFullRetrieveSerializer(
-            subgoals, many=True, context=self.context
-        ).data
+    def get_last_metrics(self, obj):
+        records = []
+        for property in obj.properties.all().distinct():
+            record = models.Record.objects.filter(goal=obj, property=property).first()
+            records.append(record)
+        return RecordSerializer(records, many=True).data
 
     def get_dependencies(self, obj):
         subgoals = obj.dependencies.all()
@@ -194,3 +210,12 @@ class NotificationSerializer(serializers.ModelSerializer):
         fields = ["sender", "information", "created_at"]
 
     sender = BaseMemberSerializer()
+
+
+# goal: developing a website (responsibiliets: Reza should manage the interface between Dave and max)
+# subgoal 1: develop the backend start :1 end 10  (responsibiliets: Dave should create the db)
+# subgoal 2: develop the frontend start: 11, end :15->20 (responsibilites: Max should create the login page)
+
+
+## {proerties_changes, responsibilities_changes, start_change, end_change}
+##

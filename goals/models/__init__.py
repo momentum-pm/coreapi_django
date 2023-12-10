@@ -8,4 +8,4 @@ from .person import Person
 from .property import Property
 from .record import Record
 from .responsibility import Responsibility
-from .timeline_item import TimelineItem
+from .action import Action
