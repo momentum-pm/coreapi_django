@@ -7,7 +7,6 @@ class LLM:
     client = OpenAI()
 
     def get_response(self, prompt):
-        self.client.chat.completions.create(messages=[{"system": prompt}])
         completion = self.client.chat.completions.create(
             model=self.DEFAULT_MODEL,
             messages=[
