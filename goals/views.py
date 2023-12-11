@@ -60,7 +60,7 @@ class GoalsRunView(
     base_queryset = models.Goal.objects.all()
 
     response_serializer = {
-        "retrieve": serializers.GoalRunSerializer,
+        "retrieve": serializers.GoalFullRetrieveSerializer,
     }
 
 

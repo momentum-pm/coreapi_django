@@ -21,14 +21,6 @@ class PersonRetrieveSerializer(serializers.ModelSerializer):
         fields = ["id", "name", "member", "about"]
 
 
-class ResponsibilitySerializer(serializers.ModelSerializer):
-    class Meta:
-        model = models.Responsibility
-        fields = ["id", "person", "summary", "status"]
-
-    person = PersonRetrieveSerializer()
-
-
 class ActionCompactSerializer(serializers.ModelSerializer):
     class Meta:
         model = models.Action
@@ -96,7 +88,6 @@ class GoalFullRetrieveSerializer(serializers.ModelSerializer):
             "state",
             "notifications",
             "last_actions",
-            "responsibilities",
             "metrics",
             "latest_metric_values",
             "dependencies",
@@ -107,7 +98,6 @@ class GoalFullRetrieveSerializer(serializers.ModelSerializer):
 
     notifications = NotificationSerializer(many=True)
     last_actions = ActionCompactSerializer(many=True)
-    responsibilities = ResponsibilitySerializer(many=True)
     metrics = MetricSerializer(many=True)
     latest_metric_values = MetricValueSerializer(many=True)
     dependencies = DependencySourceSerializer(many=True)
@@ -128,20 +118,6 @@ class GoalCreateEditSerializer(serializers.ModelSerializer):
             "dependents",
             "subgoals",
             "parent",
-        ]
-
-
-class GoalRunSerializer(GoalFullRetrieveSerializer):
-    class Meta:
-        model = models.Goal
-        fields = [
-            "start",
-            "end",
-            "notifications",
-            "state",
-            "last_actions",
-            "responsibilities",
-            "latest_metric_values",
         ]
 
 
@@ -168,8 +144,17 @@ class GoalBaseRetrieveSerializer(serializers.ModelSerializer):
             # "assistant",
             "name",
             "summary",
+            "owner",
+            "start",
+            "end",
+            "state"
             # "entities",
         ]
+
+    owner = serializers.SerializerMethodField()
+
+    def get_owner(self, obj):
+        return obj.owner.name
 
     # assistant = AssistantBaseSerializer()
 
@@ -240,11 +225,3 @@ class PersonCreateSerializer(serializers.ModelSerializer):
         attrs.update(user=user)
         return attrs
 
-
-# goal: developing a website (responsibiliets: Reza should manage the interface between Dave and max)
-# subgoal 1: develop the backend start :1 end 10  (responsibiliets: Dave should create the db)
-# subgoal 2: develop the frontend start: 11, end :15->20 (responsibilites: Max should create the login page)
-
-
-## {proerties_changes, responsibilities_changes, start_change, end_change}
-##

@@ -4,7 +4,6 @@ from .analyzer_assistant import AnalyzerAssistant
 
 from .notification import Notification
 from .person import Person
-from .responsibility import Responsibility
 from .action import Action
 
 

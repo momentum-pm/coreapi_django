@@ -18,6 +18,8 @@ class Goal(models.CreatableModel):
     start = models.DateField(null=True, blank=True, default=None)
     end = models.DateField(null=True, blank=True, default=None)
     state = models.CharField(choices=STATE_CHOICES, default=UPCOMMING)
+    state_percentage = models.FloatField(default=0)
+
     name = models.CharField(max_length=255)
     summary = models.TextField(blank=True)
     parent = models.ForeignKey(

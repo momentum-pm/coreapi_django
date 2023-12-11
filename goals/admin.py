@@ -44,8 +44,3 @@ class PersonADmin(admin.ModelAdmin):
 @admin.register(models.Notification)
 class NotificationAdmin(admin.ModelAdmin):
     list_display = ["information", "sender", "goal", "is_seen"]
-
-
-@admin.register(models.Responsibility)
-class ResponsibilityAdmin(admin.ModelAdmin):
-    list_display = ["summary", "status", "person", "goal"]

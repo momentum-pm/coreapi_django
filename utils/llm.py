@@ -75,7 +75,7 @@ class LLM:
     def get_run_status(self, run_id, thread_id):
         return self.client.beta.threads.runs.retrieve(
             thread_id=thread_id, run_id=run_id
-        )["status"]
+        ).status
 
     def get_message_id(self, content, file_paths, thread_id):
         file_ids = []
@@ -93,8 +93,8 @@ class LLM:
         )
         return message.id
 
-    def get_messages(self, thread_id):
-        messages = self.client.beta.threads.messages.list(thread_id=thread_id)
+    def get_last_message(self, thread_id):
+        messages = self.client.beta.threads.messages.list(thread_id=thread_id, limit=1)
         return messages.data
 
     def get_embedding(self, text):
