@@ -129,4 +129,217 @@ class AnalyzerAssistant(Assistant):
                     "required": ["location"],
                 },
             },
-        )
+        ),
+        Function.objects.create(
+            assistant=self,
+            specification={
+                "name": "set_start_date",
+                "description": "Set the start date of the goal, return output as a json with fields 'message' and 'succeed'. 'message' explains the act and 'succeed' is a boolean output shows if the act was successful.",
+                "parameters": {
+                    "type": "object",
+                    "properties": {
+                    "date": {
+                        "type": "string",
+                        "description": "The start date of the goal e.g. 11 Dec 2023"
+                    }
+                    },
+                    "required": [
+                    "date"
+                    ]
+                }
+            },
+        ),
+        Function.objects.create(
+            assistant=self,
+            specification={
+                "name": "set_end_date",
+                "description": "Set the end date of the goal, return output as a json with fields 'message' and 'succeed'. 'message' explains the act and 'succeed' is a boolean output shows if the act was successful.",
+                "parameters": {
+                    "type": "object",
+                    "properties": {
+                    "date": {
+                        "type": "string",
+                        "description": "The end date of the goal e.g. 28 Dec 2023"
+                    }
+                    },
+                    "required": [
+                    "date"
+                    ]
+                }
+            },
+        ),
+        Function.objects.create(
+            assistant=self,
+            specification={
+                "name": "add_subgoal",
+                "description": "Add a subgoal with provided name, summary, owner name and owner ID to the goal. If you have subgoal's owner ID, use that. If you have not subgoal's owner ID, use owner name. If you have not none of them, ask the user about them.",
+                "parameters": {
+                    "type": "object",
+                    "properties": {
+                    "name": {
+                        "type": "string",
+                        "description": "Subgoal name"
+                    },
+                    "summary": {
+                        "type": "string",
+                        "description": "Subgoal summary"
+                    },
+                    "owner_name": {
+                        "type": "string",
+                        "description": "Subgoal owner name"
+                    },
+                    "owner_id": {
+                        "type": "string",
+                        "description": "Subgoal owner ID"
+                    }
+                    },
+                    "required": [
+                    "name",
+                    "summary"
+                    ]
+                }
+            },
+        ),
+        Function.objects.create(
+            assistant=self,
+            specification={
+                "name": "remove_subgoal",
+                "description": "Remove a subgoal from the goal. Both subgoal ID and subgoal name can be provided. If you have subgoal ID, remove the subgoal by subgoal ID. If you have not, remove the subgoal by subgoal name. If you have none of them, ask the user about the inputs.",
+                "parameters": {
+                    "type": "object",
+                    "properties": {
+                    "subgoal_id": {
+                        "type": "string",
+                        "description": "The id of the subgoal should be removed from this goal."
+                    },
+                    "subgoal_name": {
+                        "type": "string",
+                        "description": "The name of the subgoal should be removed from this goal."
+                    }
+                    },
+                    "required": [
+                    "subgoal_name",
+                    "subgoal_id"]
+                }
+            },
+        ),
+        Function.objects.create(
+            assistant=self,
+            specification={
+                "name": "set_status",
+                "description": "Set the current status of the goal",
+                "parameters": {
+                    "type": "object",
+                    "properties": {
+                    "status": {
+                        "type": "string",
+                        "description": "The current status of the goal which can be 'To Do' or 'In progress' or 'Done'. Don't set the status something else than these. Change the input to one of these if it was not exactly the same"
+                    }
+                    },
+                    "required": [
+                    "status"
+                    ]
+                }
+            },
+        ),
+        Function.objects.create(
+            assistant=self,
+            specification={
+                "name": "set_doing_percentage",
+                "description": "Set the current doing percentage of the goal",
+                "parameters": {
+                    "type": "object",
+                    "properties": {
+                    "doing_percentage": {
+                        "type": "string",
+                        "description": "The current doing percentage (progress percentage) of the goal which is a number between 0 and 1 or from 0 to 100 (in percentage)."
+                    }
+                    },
+                    "required": [
+                    "doing_percentage"
+                    ]
+                }
+            },
+        ),
+        Function.objects.create(
+            assistant=self,
+            specification={
+                "name": "add_action",
+                "description": "Each action by a person should be added to goal's actions list.",
+                "parameters": {
+                    "type": "object",
+                    "properties": {
+                    "person_name": {
+                        "type": "string",
+                        "description": "The name of the person who has done the action."
+                    },
+                    "person_id": {
+                        "type": "string",
+                        "description": "The ID of the person who has done the action."
+                    },
+                    "summary": {
+                        "type": "string",
+                        "description": "The summary explanation of the action done for this goal."
+                    }
+                    },
+                    "required": [
+                    "person_name",
+                    "person_id",
+                    "summary"
+                    ]
+                }
+            },
+        ),
+        Function.objects.create(
+            assistant=self,
+            specification={
+                "name": "update_metricvalue",
+                "description": "Update the evaluation metric value for this goal. Check the metric exists (whether metric_id or metric_name), if it doesn't exist don't do anything and tell the user the problem occured. ",
+                "parameters": {
+                    "type": "object",
+                    "properties": {
+                    "mertic_id": {
+                        "type": "string",
+                        "description": "The ID of the metric should be updated."
+                    },
+                    "mertic_name": {
+                        "type": "string",
+                        "description": "The name of the metric should be updated."
+                    },
+                    "value": {
+                        "type": "string",
+                        "description": "The new value of the metric."
+                    }
+                    },
+                    "required": [
+                    "mertic_id",
+                    "mertic_name",
+                    "value"
+                    ]
+                }
+            },
+        ),
+        Function.objects.create(
+            assistant=self,
+            specification={
+                "name": "change_owner",
+                "description": "Change the owner of the goal. User should specify one of the owner name or owner ID. If none of them is specified, don't do anything and just ask the user about the new owner.",
+                "parameters": {
+                    "type": "object",
+                    "properties": {
+                    "owner_name": {
+                        "type": "string",
+                        "description": "The name of the owner of the goal"
+                    },
+                    "owner_id": {
+                        "type": "string",
+                        "description": "The ID of the owner of the goal"
+                    }
+                    },
+                    "required": [
+                    "owner_name",
+                    "owner_id"
+                    ]
+                }
+            },
+        ),
