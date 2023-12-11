@@ -16,7 +16,7 @@ class AssistantBaseSerializer(serializers.ModelSerializer):
 class BaseMemberSerializer(serializers.ModelSerializer):
     class Meta:
         model = models.Member
-        feilds = ["id", "name"]
+        fields = ["id", "name"]
 
 
 class ThreadCreateSerializer(serializers.ModelSerializer):
