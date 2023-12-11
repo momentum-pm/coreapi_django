@@ -6,6 +6,17 @@ class LLM:
     DEFAULT_MODEL = "gpt-4-1106-preview"
     client = OpenAI()
 
+    def get_response(self, prompt):
+        self.client.chat.completions.create(messages=[{"system": prompt}])
+        completion = self.client.chat.completions.create(
+            model=self.DEFAULT_MODEL,
+            messages=[
+                {"role": "system", "content": prompt},
+            ],
+        )
+        text_response = completion["choices"][0]["messages"]["content"]
+        return text_response
+
     def create_assistant_id(
         self,
         name,

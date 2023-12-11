@@ -66,14 +66,14 @@ class MessageCreateSerializer(serializers.ModelSerializer):
         run = Run.objects.create(
             thread=thread,
             assistant=assistant,
-            instructions=instructions_for_run,
+            instructions=assistant.instructions + instructions_for_run,
         )
         from utils.llm import llm
 
         remote_run_id = llm.create_run_id(
             thread_id=thread.remote_uuid,
             assistant_id=assistant.remote_uuid,
-            instructions=instructions_for_run,
+            instructions=assistant.instructions + instructions_for_run,
         )
         run.remote_uuid = remote_run_id
         run.save()

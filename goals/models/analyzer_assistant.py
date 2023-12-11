@@ -9,7 +9,15 @@ class AnalyzerAssistant(Assistant):
     )
 
     def get_default_name(self):
-        return f"{self.goal.name} Goal Manager Assistant"
+        from utils.llm import llm
+
+        return llm.get_response(
+            f"""Generate a 2 words cool title for an AI Assistant called: {self.goal.name}
+            related to its duty which is: {self.goal.summary}
+            The first word should be related to the duty of the AI Assistant,
+            The second word should be a cybernetic word such as bot, link, assistant, ... or  their synonyms.
+            Just output the 2 words"""
+        )
 
     def _create_context_str(self, goal_info):
         # "notifications",
