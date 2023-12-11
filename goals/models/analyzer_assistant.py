@@ -12,18 +12,19 @@ class AnalyzerAssistant(Assistant):
         return f"{self.goal.name} Goal Manager Assistant"
 
     def _create_context_str(self, goal_info):
+        # "notifications",
         ## goal general info
-        goal_name = goal_info.get("name", "")
-        goal_summary = goal_info.get("summary", "")
-
+        goal_name = goal_info.get("name")
+        goal_summary = goal_info.get("summary")
+        goal_state = goal_info.get("state")
         ## goal update info
         goal_start = goal_info.get("start")
         goal_end = goal_info.get("end")
-        goal_responsibilites = goal_info.get("responsibilites")
         goal_latest_metric_values = goal_info.get("latest_metric_values")
-        goal_subgoals = goal_info.get("subgoals")
-        goal_dependcies = goal_info.get("dependcies")
         goal_last_actions = goal_info.get("last_actions")
+        goal_responsibilites = goal_info.get("responsibilites")
+        # goal_subgoals = goal_info.get("subgoals")
+        # goal_dependcies = goal_info.get("dependcies")
 
         goal_context = """
                         Each goal has a owner which is a person. Also each goal as an AI PM (artificial Intelligence project manager). Whenever new information comes in from assistants, Systems, Other PMs, or the owner, the PM will synthesize the info, find out what this info means, what actions it should take, and bring the actions to the owner. If the owner confirms, it does the actions.
@@ -41,43 +42,29 @@ class AnalyzerAssistant(Assistant):
                         Goal: {goal_name}
                         Summary: {goal_summary}
                         --------------------------------------------------------------------------------------------------------------------------------
-                        Latest Key Metrics Data: {goal_latest_metric_states}
+                        Goal start date is : {goal_start} and end is : {goal_end}
+                         --------------------------------------------------------------------------------------------------------------------------------
+                        Latest Key Metrics Data: {goal_latest_metric_values}
                         --------------------------------------------------------------------------------------------------------------------------------
                         Summary of Latest Actions: {goal_latest_actions}
-                        --------------------------------------------------------------------------------------------------------------------------------
-                        Goal start date is : {goal_start} and end is : {goal_end}
-                        --------------------------------------------------------------------------------------------------------------------------------
-                        Goal's subtasks and their reposibles are: {goal_responsibilites}
-                        --------------------------------------------------------------------------------------------------------------------------------
-                        Related People: {goal_related_people}
-                        --------------------------------------------------------------------------------------------------------------------------------
-                        Sub-Goals: {goal_subgoals}
-                        --------------------------------------------------------------------------------------------------------------------------------
-                        Dependency between tasks: {goal_dependencies}
-                        --------------------------------------------------------------------------------------------------------------------------------
-                        Execution plan: {goal_execution_plan}
-                        --------------------------------------------------------------------------------------------------------------------------------
-                        Project TimeLine: {goal_project_timeline}
-                        --------------------------------------------------------------------------------------------------------------------------------
-                        People Tasks: {goal_people_tasks}
+                         --------------------------------------------------------------------------------------------------------------------------------
+                        Goal's subtasks and their reposible people are: {goal_responsibilites}
                        """.format(
             goal_name=goal_name,
             goal_summary=goal_summary,
-            goal_latest_metric_states=goal_latest_metric_values,
+            goal_latest_metric_values=goal_latest_metric_values,
             goal_start=goal_start,
             goal_end=goal_end,
             goal_responsibilites=goal_responsibilites,
             goal_latest_actions=goal_last_actions,
-            goal_subgoals=goal_subgoals,
-            goal_dependencies=goal_dependcies,
         )
         return goal_context
-    
+
     def get_default_instructions(self):
         from goals.serializers import GoalInitiateSerializer
 
         data = GoalInitiateSerializer(self.goal).data
-        default_instructions= """
+        default_instructions = """
                     You are the project-manager of {goal_name} goal which said with details in context.
                     You are responsible for all factors of the project and you should update project factors due to any new information will be given to you about the project.
                     Just update the timeline according to the changes
@@ -89,18 +76,23 @@ class AnalyzerAssistant(Assistant):
                     The new information will be given in messages.
                     Handle the project carefully. You are the project-manager.
                     Any new information come to you specify any change in all of the variables of the system specially the execution plan and timeline of the project.""".format(
-                    goal_name=data.get("name")
+            goal_name=data.get("name")
+        )
         return default_instructions
 
     def get_instructions_for_run(self, member):
         from goals.serializers import GoalFullRetrieveSerializer
+
         data = GoalFullRetrieveSerializer(self.goal).data
         goal_context = self._create_context_str(data)
-        goal_instruction = '''
-                            You are the project manager of this goal: {goal_name}, 
+        goal_instruction = """
                             the goal owner is: {goal_owner}, 
                             today is: {today_date}
-                            '''.format(goal_name=self.goal.name, goal_owner=member.__str__(), today_date=models.now().date())
+                            """.format(
+            goal_name=self.goal.name,
+            goal_owner=member.__str__(),
+            today_date=models.now().date(),
+        )
 
         goal_instruction += """ Context is: {context}""".format(context=goal_context)
         return goal_instruction

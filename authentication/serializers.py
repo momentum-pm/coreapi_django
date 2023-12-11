@@ -266,7 +266,6 @@ class ConfigsSerializer(serializers.ModelSerializer):
                 "total_benefit_loss": None,
             }
 
-
     def get_investor_count(self, obj):
         from investors.models import InvestorAccount
 

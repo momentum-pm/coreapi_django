@@ -6,6 +6,42 @@ from .actions import Actions
 from django.utils import timezone
 
 
+class EssentialsView(views.BaseViewSet):
+    permission_classes = [permissions.IsAuthenticated]
+    response_serializer = serializers.ConfigsSerializer
+    permission_classes = [AllowAny]
+
+    @views.action(detail=False, methods=["get"])
+    def get(self, request):
+        user = request.user
+        is_authenticated = (user and user.is_authenticated) or False
+        if is_authenticated:
+            person = self.request.user.get_person()
+            return responses.Ok(
+                data={
+                    "is_authenticated": True,
+                    "today": models.models.now(),
+                    "person": {
+                        "username": user.username,
+                        "id": person.id,
+                        "member": person.member.id,
+                    },
+                    "profile": {
+                        "username": user.username,
+                        "id": person.id,
+                        "member": person.member.id,
+                    },
+                }
+            )
+        else:
+            return responses.Ok(
+                data={
+                    "is_authenticated": False,
+                    "today": models.models.now(),
+                }
+            )
+
+
 class AuthenticateView(views.BaseViewSet):
     permission_classes = [AllowAny]
     request_serializer = {
@@ -143,14 +179,6 @@ class OTPView(views.BaseViewSet):
             return responses.NotFound(message=messages.otp_no_such_user_message)
         except responses.BadRequest as response:
             return response
-
-
-class ConfigsView(views.RetrieveModelMixin):
-    permission_classes = [permissions.IsAuthenticated]
-    response_serializer = serializers.ConfigsSerializer
-
-    def get_object(self, *args, **kwargs):
-        return self.request.user
 
 
 class UsersView(

@@ -1,8 +1,12 @@
 from django.urls import re_path
 from .. import views
 
-app_name = "authentication_private"
+app_name = "authentication"
 urlpatterns = [
+    re_path(
+        r"^essentials/$",
+        views.EssentialsView.as_view(actions={"get": "get"}),
+    ),
     re_path(
         r"^login/$",
         views.AuthenticateView.as_view(actions={"post": "login"}),
@@ -26,10 +30,6 @@ urlpatterns = [
     re_path(
         r"^otp/reset-password/$",
         views.OTPView.as_view(actions={"post": "reset_password"}),
-    ),
-    re_path(
-        r"^configs/",
-        views.ConfigsView.as_retrieve(),
     ),
     re_path(
         r"^users/$",

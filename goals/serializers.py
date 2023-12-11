@@ -18,7 +18,7 @@ class DependencyNestedSerializer(serializers.ModelSerializer):
 class PersonRetrieveSerializer(serializers.ModelSerializer):
     class Meta:
         model = models.Person
-        fields = ["id", "name", "about"]
+        fields = ["id", "name", "member", "about"]
 
 
 class ResponsibilitySerializer(serializers.ModelSerializer):

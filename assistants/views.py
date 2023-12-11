@@ -3,17 +3,31 @@ from . import serializers, models
 from .actions import Actions
 
 
-class ThreadsView(views.CreateModelMixin):
+class ThreadsView(views.CreateModelMixin, views.ListModelMixin):
+    permission_classes = [permissions.AllowAny]
+
+    base_queryset = models.Thread.objects.all()
     request_serializer = serializers.ThreadCreateSerializer
+    response_serializer = serializers.ThreadListSerializer
+    filter_lookups = {
+        "person": "member__person",
+    }
 
 
-class MessagesView(views.CreateModelMixin, views.PaginateModelMixin):
+class AssistantsView(views.ListModelMixin):
+    permission_classes = [permissions.AllowAny]
+    base_queryset = models.Assistant.objects.all()
+    response_serializer = serializers.AssistantBaseSerializer
+
+
+class MessagesView(views.CreateModelMixin, views.ListModelMixin):
     permission_classes = [permissions.AllowAny]
     request_serializer = {"create": serializers.MessageCreateSerializer}
-    response_serializer = {"paginate": serializers.MessgeRetrieveSerializer}
+    response_serializer = {"list": serializers.MessgeRetrieveSerializer}
+    filter_lookups = ["create_at__lt", "created_at__gt"]
 
     def get_base_queryset(self):
-        if self.action == "paginate":
+        if self.action == "list":
             thread = self.get_thread()
             from utils.llm import llm
 
@@ -23,12 +37,14 @@ class MessagesView(views.CreateModelMixin, views.PaginateModelMixin):
                 if models.Message.objects.filter(remote_uuid=message_id).exists():
                     pass
                 else:
-                    models.Message.objects.create(
-                        remote_uuid=message.id,
-                        content=message.content[0].text.value,
-                        is_response=True,
-                        thread=thread,
-                    )
+                    content = message.content[0].text.value
+                    if len(content) > 3:
+                        models.Message.objects.create(
+                            remote_uuid=message.id,
+                            content=content,
+                            is_response=True,
+                            thread=thread,
+                        )
             return thread.messages.all()
         else:
             return super().get_base_queryset()

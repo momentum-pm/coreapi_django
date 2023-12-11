@@ -48,8 +48,7 @@ class Ok(Response):
                 message_list.append(message.as_dict())
             if messages:
                 for message in messages:
-
-                    #message_list.append(message.as_dict())
+                    # message_list.append(message.as_dict())
                     message_list.append(message)
 
             data.update(_messages=message_list)
@@ -191,7 +190,7 @@ class WrappedUnAuthorized(UnAuthorized):
         data = {}
 
         data.update(_messages=[messages.unauthenticated_error.as_dict()])
-        super().__init__(data, exc.status_code)
+        super().__init__(data, 401)
 
 
 class WrappedForbidden(Forbidden):

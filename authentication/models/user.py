@@ -105,13 +105,21 @@ class User(AbstractUser):
                 title=f"مشاهده اطلاعات {self.username}",
             )
             actions = [edit_action, view_action]
-
+            self.create_person()
             actions = Action.register_actions(actions)
             self.grant_actions(actions)
 
-    def create_person(self, summary):
-        from people.models import Person
+    def get_person(self):
+        from goals.models import Person
 
-        Person.objects.create(
+        if Person.objects.filter(user=self).exists():
+            return Person.objects.get(user=self)
+        else:
+            return self.create_person()
+
+    def create_person(self, summary="New Member"):
+        from goals.models import Person
+
+        return Person.objects.create(
             user=self, name=f"{self.first_name} {self.last_name}", summary=summary
         )

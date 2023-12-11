@@ -4,7 +4,7 @@ app_name = "v1"
 
 urlpatterns = [
     path(
-        "authentication/",
+        "auth/",
         include("authentication.urls.v1", namespace="authentication"),
     ),
     path(

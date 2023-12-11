@@ -3,6 +3,7 @@ from .. import views
 
 app_name = "goals"
 urlpatterns = [
+
     # goals
     re_path(
         route=r"^goals/$",
