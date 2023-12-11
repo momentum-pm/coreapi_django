@@ -22,70 +22,88 @@ class AnalyzerAssistant(Assistant):
     def _create_context_str(self, goal_info):
         # "notifications",
         ## goal general info
-        goal_name = goal_info.get("name")
-        goal_summary = goal_info.get("summary")
-        goal_state = goal_info.get("state")
-        ## goal update info
-        goal_start = goal_info.get("start")
-        goal_end = goal_info.get("end")
-        goal_latest_metric_values = goal_info.get("latest_metric_values")
-        goal_last_actions = goal_info.get("last_actions")
-        goal_responsibilites = goal_info.get("responsibilites")
-        # goal_subgoals = goal_info.get("subgoals")
-        # goal_dependcies = goal_info.get("dependcies")
-
+        goal_id = goal_info.get("id","")
+        goal_name = goal_info.get("name","")
+        goal_summary = goal_info.get("summary","")
+        goal_start_date = goal_info.get("start","")
+        goal_end_date = goal_info.get("end","")
+        goal_status = goal_info.get("state","")
+        goal_latest_actions = goal_info.get("last_actions","")
+        goal_metric_values = goal_info.get("latest_metric_values","")
+        goal_dependencies = goal_info.get("dependencies","")
+        goal_subgoals = goal_info.get("subgoals","")
+        
         goal_context = """
-                        Each goal has a owner which is a person. Also each goal as an AI PM (artificial Intelligence project manager). Whenever new information comes in from assistants, Systems, Other PMs, or the owner, the PM will synthesize the info, find out what this info means, what actions it should take, and bring the actions to the owner. If the owner confirms, it does the actions.
-                        Each goal also can have some subgoals. Goals (or subgoals with together) can be depenedant to each other. They can be parent/child. For example each goal is a parent for its subgoals.
-                        Here are some events that can lead to the updates in a system designed in this architecture:
-                        1. Updates to Key Metrics Data
-                        2. Updates to Sub-Goal Progress
-                        3. Updates to Dependencies
-                        4. Updates to Risks
-                        5. Updates to Related People
-                        6. Updates to Entities
-
-                        These events serve as triggers that prompt the need for updates within the system, ensuring that the information remains accurate and up-to-date for effective project management and goal achievement.
                         You are the AI PM of this goal:
-                        Goal: {goal_name}
+                        Goal ID: {goal_id}
+                        Goal name: {goal_name}
                         Summary: {goal_summary}
                         --------------------------------------------------------------------------------------------------------------------------------
-                        Goal start date is : {goal_start} and end is : {goal_end}
-                         --------------------------------------------------------------------------------------------------------------------------------
-                        Latest Key Metrics Data: {goal_latest_metric_values}
+                        Goal start date is : {goal_start_date} and end is : {goal_end_date}
                         --------------------------------------------------------------------------------------------------------------------------------
-                        Summary of Latest Actions: {goal_latest_actions}
-                         --------------------------------------------------------------------------------------------------------------------------------
-                        Goal's subtasks and their reposible people are: {goal_responsibilites}
+                        Goal last status: {goal_status}
+                        --------------------------------------------------------------------------------------------------------------------------------
+                        List of Latest Actions: {goal_latest_actions}
+                        --------------------------------------------------------------------------------------------------------------------------------
+                        Goal evaluation metric values: {goal_metric_values}
+                        --------------------------------------------------------------------------------------------------------------------------------
+                        Goal dependencies: {goal_dependencies}
+                        --------------------------------------------------------------------------------------------------------------------------------
+                        Goal subgoals: {goal_subgoals}
                        """.format(
+            goal_id=goal_id,
             goal_name=goal_name,
             goal_summary=goal_summary,
-            goal_latest_metric_values=goal_latest_metric_values,
-            goal_start=goal_start,
-            goal_end=goal_end,
-            goal_responsibilites=goal_responsibilites,
-            goal_latest_actions=goal_last_actions,
+            goal_start_date=goal_start_date,
+            goal_end_date=goal_end_date,
+            goal_status=goal_status,
+            goal_latest_actions=goal_latest_actions,
+            goal_metric_values=goal_metric_values,
+            goal_dependencies=goal_dependencies,
+            goal_subgoals=goal_subgoals,
         )
         return goal_context
-
+        
     def get_default_instructions(self):
         from goals.serializers import GoalInitiateSerializer
 
         data = GoalInitiateSerializer(self.goal).data
         default_instructions = """
-                    You are the project-manager of {goal_name} goal which said with details in context.
-                    You are responsible for all factors of the project and you should update project factors due to any new information will be given to you about the project.
-                    Just update the timeline according to the changes
-                    For example if someone gets sick, you should extend project timeline.
-                    If a task is done or finished already, you should remove its time from timeline.
-                    If a new subtask is added to project, you should estimate its time and update project timeline.
-                    If any event happened that affects the project's time significantly, the risks should be updated.
-                    You should list all of changes and updates should be applied in the system based on the new information and events user will gave you.
-                    The new information will be given in messages.
-                    Handle the project carefully. You are the project-manager.
-                    Any new information come to you specify any change in all of the variables of the system specially the execution plan and timeline of the project.""".format(
-            goal_name=data.get("name")
-        )
+            You are project manager of the goal '{goal_name}' in an IT and software company. Each goal has an ID and contains:
+            1. An owner (A person owns the goal and must confirm your decisions and changes to be applied on goal)
+            2. Start Date (beginning date of the goal)
+            3. End Date (finishing date of the goal)
+            4. Goal name (Goal Name)
+            5. Goal summary (a summary explaining the goal)
+            6. metrics (Evaluation metrics of how much the goal has proceed)
+            7. subgoals (Goal separated to some subgoals. Each subgoal also has an owner too. Subgoals splits the goal into smaller objects to achieve).
+            8. status ('To Do' or 'In progress' or 'Done')
+            9. doing percentage (shows the progress percentage of goal)
+            10. actions (all of the actions done for this goal or all of the changes)
+
+            You should manage this goal. Any new information comes:
+            1. you should analyze it
+            2. decide whether it affects to your goal or not
+            3. if any change required to your goal factors
+            4. tell the user the change you want to do and get his permission
+            5. if he confirmed then apply the change on the goal.
+            6. Tell the new information to your subgoals
+            7. If you had any change, tell the change to your subgoals
+            Notice that there is some information that are irrelevant to your goal. Don't change anything if it was irrelevant. Do all of the steps said to you one by one carefully.
+
+            The goal's info is:
+            goal name: {goal_name},
+            ------------------------------------------------------------------
+            goal summary: {goal_summary},
+            ------------------------------------------------------------------
+            goal metrics: {goal_metrics},
+            ------------------------------------------------------------------
+            goal dependencies: {goal_dependencies},
+            ------------------------------------------------------------------
+            goal subgoals: {goal_subgoals},
+            ------------------------------------------------------------------
+            """.format(goal_name=data.name, goal_summary=data.summary, goal_metrics=data.metrics, goal_dependencies=data.dependencies, goal_subgoals=data.subgoals)
+        
         return default_instructions
 
     def get_instructions_for_run(self, member):
