@@ -13,7 +13,7 @@ class LLM:
                 {"role": "system", "content": prompt},
             ],
         )
-        text_response = completion.choices[9].message.content
+        text_response = completion.choices[0].message.content
         return text_response
 
     def create_assistant_id(
