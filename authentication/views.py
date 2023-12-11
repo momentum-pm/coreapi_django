@@ -180,10 +180,17 @@ class OTPView(views.BaseViewSet):
         except responses.BadRequest as response:
             return response
 
+    views.CreateModelMixin,
+
+
+class RegisterView(views.CreateModelMixin):
+    permission_classes = [AllowAny]
+    request_serializer = serializers.UserCreateUpdateSerializer
+    base_queryset = models.User.objects.all()
+
 
 class UsersView(
     views.PaginateModelMixin,
-    views.CreateModelMixin,
     views.DeleteModelMixin,
     views.EditModelMixin,
     views.RetrieveModelMixin,

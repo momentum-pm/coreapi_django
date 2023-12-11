@@ -127,8 +127,6 @@ class UserCreateUpdateSerializer(serializers.ModelSerializer):
         return super().validate(attrs)
 
     def update(self, instance, validated_data):
-        print("inside updateee")
-
         password = validated_data.pop("password", None)
         username = validated_data.pop("username", None)
         groups = validated_data.pop("groups", [])

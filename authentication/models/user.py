@@ -117,9 +117,9 @@ class User(AbstractUser):
         else:
             return self.create_person()
 
-    def create_person(self, summary="New Member"):
+    def create_person(self, about="New Member"):
         from goals.models import Person
 
         return Person.objects.create(
-            user=self, name=f"{self.first_name} {self.last_name}", summary=summary
+            user=self, name=f"{self.first_name} {self.last_name}", about=about
         )

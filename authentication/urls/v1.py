@@ -12,6 +12,10 @@ urlpatterns = [
         views.AuthenticateView.as_view(actions={"post": "login"}),
     ),
     re_path(
+        r"^register/$",
+        views.RegisterView.as_view(actions={"post": "create"}),
+    ),
+    re_path(
         r"^refresh-token/$",
         views.AuthenticateView.as_view(actions={"post": "refresh_token"}),
     ),

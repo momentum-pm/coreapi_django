@@ -7,6 +7,7 @@ class Goal(models.CreatableModel):
         related_name="owned_goals",
         on_delete=models.CASCADE,
     )
+
     UPCOMMING = "upcomming"
     ONGOING = "ongoing"
     PASSED = "passed"
