@@ -44,3 +44,7 @@ class Message(models.CreatableModel):
             self.remote_uuid = message_id
 
         return super().pre_save(in_create, in_bulk, index)
+
+    @property
+    def call_answered(self):
+        return self.calls.filter(output__isnull=True).exists() is False

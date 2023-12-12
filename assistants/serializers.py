@@ -83,7 +83,13 @@ class MessageCreateSerializer(serializers.ModelSerializer):
 class CallSerializer(serializers.ModelSerializer):
     class Meta:
         model = models.Call
-        fields = ["id", "function_name", "arguments", "output","question"]
+        fields = [
+            "id",
+            "function_name",
+            "arguments",
+            "output",
+            "question",
+        ]
 
     function_name = serializers.SerializerMethodField()
 
@@ -93,7 +99,15 @@ class CallSerializer(serializers.ModelSerializer):
 
 class MessageRetrieveSerializer(serializers.ModelSerializer):
     class Meta:
-        fields = ["id", "created_at", "thread", "type", "content", "calls"]
+        fields = [
+            "id",
+            "created_at",
+            "thread",
+            "type",
+            "content",
+            "calls",
+            "call_answered",
+        ]
         model = models.Message
 
     calls = CallSerializer(many=True)

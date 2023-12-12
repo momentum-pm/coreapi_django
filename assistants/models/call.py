@@ -15,6 +15,7 @@ class Call(models.CreatableModel):
     arguments = models.JSONField()
     remote_uuid = models.TextField()
     output = models.TextField(null=True, blank=True, default=None)
+
     # goal = models.ForeignKey(
     #     to="Goal",
     #     related_name="actions",
