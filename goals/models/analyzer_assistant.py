@@ -133,27 +133,7 @@ class AnalyzerAssistant(Assistant):
         # TODO REZA test interface
         # TODO REZA fix functions
         # TODO REZA handle sub-goal and responsibilities conflict
-        Function.objects.create(
-            assistant=self,
-            specification={
-                "name": "state_change_confirmed",
-                "description": """
-                        When you detect any changes in people engaged, or changes in the state of properties of the task,
-                        you should first get owner's approval on to apply the changes,
-                        and the report information that caused this change alongside with the changes.
-                        information: a brief of the new information that caused the changes""",
-                "parameters": {
-                    "type": "object",
-                    "properties": {
-                        "id": {
-                            "type": "string",
-                            "description": "The city and state e.g. San Francisco, CA",
-                        },
-                    },
-                    "required": ["location"],
-                },
-            },
-        ),
+
         Function.objects.create(
             assistant=self,
             specification={
@@ -170,7 +150,7 @@ class AnalyzerAssistant(Assistant):
                     "required": ["date"],
                 },
             },
-        ),
+        )
         Function.objects.create(
             assistant=self,
             specification={
@@ -187,7 +167,7 @@ class AnalyzerAssistant(Assistant):
                     "required": ["date"],
                 },
             },
-        ),
+        )
         Function.objects.create(
             assistant=self,
             specification={
@@ -210,7 +190,7 @@ class AnalyzerAssistant(Assistant):
                     "required": ["name", "summary"],
                 },
             },
-        ),
+        )
         Function.objects.create(
             assistant=self,
             specification={
@@ -231,7 +211,7 @@ class AnalyzerAssistant(Assistant):
                     "required": ["subgoal_name", "subgoal_id"],
                 },
             },
-        ),
+        )
         Function.objects.create(
             assistant=self,
             specification={
@@ -248,7 +228,7 @@ class AnalyzerAssistant(Assistant):
                     "required": ["status"],
                 },
             },
-        ),
+        )
         Function.objects.create(
             assistant=self,
             specification={
@@ -265,7 +245,7 @@ class AnalyzerAssistant(Assistant):
                     "required": ["doing_percentage"],
                 },
             },
-        ),
+        )
         Function.objects.create(
             assistant=self,
             specification={
@@ -290,7 +270,7 @@ class AnalyzerAssistant(Assistant):
                     "required": ["person_name", "person_id", "summary"],
                 },
             },
-        ),
+        )
         Function.objects.create(
             assistant=self,
             specification={
@@ -315,7 +295,7 @@ class AnalyzerAssistant(Assistant):
                     "required": ["mertic_id", "mertic_name", "value"],
                 },
             },
-        ),
+        )
         Function.objects.create(
             assistant=self,
             specification={
@@ -336,4 +316,4 @@ class AnalyzerAssistant(Assistant):
                     "required": ["owner_name", "owner_id"],
                 },
             },
-        ),
+        )

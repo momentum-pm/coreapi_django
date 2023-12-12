@@ -31,7 +31,7 @@ from files.serializers import FileSerializer
 class MessageSerializer(serializers.ModelSerializer):
     class Meta:
         model = models.Message
-        fields = ["id", "created_at", "is_response", "content", "files"]
+        fields = ["id", "created_at", "content", "files", "type"]
 
     files = FileSerializer(many=True)
 
@@ -80,7 +80,20 @@ class MessageCreateSerializer(serializers.ModelSerializer):
         return message
 
 
-class MessgeRetrieveSerializer(serializers.ModelSerializer):
+class CallSerializer(serializers.ModelSerializer):
     class Meta:
-        fields = ["id", "created_at", "thread", "is_response", "content"]
+        model = models.Call
+        fields = ["id", "function_name", "arguments", "output","question"]
+
+    function_name = serializers.SerializerMethodField()
+
+    def get_function_name(self, obj):
+        return obj.func.specification.get("name")
+
+
+class MessageRetrieveSerializer(serializers.ModelSerializer):
+    class Meta:
+        fields = ["id", "created_at", "thread", "type", "content", "calls"]
         model = models.Message
+
+    calls = CallSerializer(many=True)

@@ -24,9 +24,17 @@ class MemberAdmin(admin.ModelAdmin):
 
 @admin.register(models.Message)
 class MessageAdmin(admin.ModelAdmin):
-    list_display = ["created_at", "content", "remote_uuid", "is_response"]
+    list_display = ["created_at", "content", "remote_uuid", "type"]
 
 
 @admin.register(models.Call)
 class CallAdmin(admin.ModelAdmin):
     list_display = ["func", "arguments", "output"]
+
+
+@admin.register(models.Function)
+class CallAdmin(admin.ModelAdmin):
+    list_display = ["assistant", "name"]
+
+    def name(self, obj):
+        return obj.specification.get("name")

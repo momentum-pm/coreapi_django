@@ -5,6 +5,7 @@ class Call(models.CreatableModel):
     class Meta:
         ordering = ["-created_at"]
 
+    question = models.TextField(null=True, blank=True, default=None)
     func = models.ForeignKey(
         to="Function", on_delete=models.CASCADE, related_name="calls"
     )

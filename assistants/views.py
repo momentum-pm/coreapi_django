@@ -23,7 +23,7 @@ class AssistantsView(views.ListModelMixin):
 class MessagesView(views.CreateModelMixin, views.ListModelMixin):
     permission_classes = [permissions.AllowAny]
     request_serializer = {"create": serializers.MessageCreateSerializer}
-    response_serializer = {"list": serializers.MessgeRetrieveSerializer}
+    response_serializer = {"list": serializers.MessageRetrieveSerializer}
     filter_lookups = ["create_at__lt", "created_at__gt"]
 
     def get_base_queryset(self):
@@ -86,10 +86,23 @@ class MessagesView(views.CreateModelMixin, views.ListModelMixin):
                                 func = f
 
                         if func:
+                            func_name = func.specification.get("name")
+                            func_description = func.specification.get("description")
+                            question = llm.get_response(
+                                f"""
+                                I will give you a function name, function description and input arguments of the function,
+                                and you should create a Yes/No Question that asks if the user wants to preform that function with those arguments.
+                                Just return the question alone, with the question mark at the end.
+                                function name: {func_name}
+                                function description: {func_description}
+                                function arguments: {arguments}
+                                """
+                            )
                             models.Call.objects.create(
                                 func=func,
                                 arguments=arguments,
                                 message=message,
+                                question=question,
                                 remote_uuid=tool_call.id,
                             )
             return thread.messages.all()
