@@ -73,7 +73,7 @@ class MessagesView(views.CreateModelMixin, views.ListModelMixin):
                     for tool_call in tool_calls:
                         arguments = tool_call.function.arguments
                         function_name = tool_call.function.name
-                        functions = models.Function.objects.get(
+                        functions = models.Function.objects.filter(
                             assistant=thread.assistant
                         )
                         func = None
