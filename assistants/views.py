@@ -127,7 +127,6 @@ class CallsView(views.BaseViewSet):
 
                 """
             )
-            print("resopnding", llm_output)
             llm.submit_output(
                 thread_id=thread.remote_uuid,
                 run_id=run.remote_uuid,
