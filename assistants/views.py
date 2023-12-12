@@ -73,15 +73,20 @@ class MessagesView(views.CreateModelMixin, views.ListModelMixin):
                     for tool_call in tool_calls:
                         arguments = tool_call.function.arguments
                         function_name = tool_call.function.name
-                        func = models.Function.objects.get(
-                            assistant=thread.assistant, name=function_name
+                        functions = models.Function.objects.get(
+                            assistant=thread.assistant
                         )
-                        models.Call.objects.create(
-                            func=func,
-                            arguments=arguments,
-                            message=message,
-                            remote_uuid=tool_call.id,
-                        )
+                        func = None
+                        for f in functions:
+                            if f.specification.get("name") == function_name:
+                                func = f
+                        if func:
+                            models.Call.objects.create(
+                                func=func,
+                                arguments=arguments,
+                                message=message,
+                                remote_uuid=tool_call.id,
+                            )
             return thread.messages.all()
         else:
             return super().get_base_queryset()
