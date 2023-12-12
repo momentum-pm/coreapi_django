@@ -35,11 +35,13 @@ class CallsView(views.BaseViewSet):
             obj.output = output
             obj.save()
             if output == "Yes":
-                function_name = obj.function.specification.get("name")
+                function_name = obj.func.specification.get("name")
                 arguments = obj.arguments
                 from goals.models import MetricValue, Metric, Person, Goal, Action
 
-                goal = obj.message.thread.assistant.goal
+                arguments = eval(arguments)
+                assistant = obj.message.thread.assistant
+                goal = Goal.objects.get(assistant__id=assistant.id)
                 if function_name == "set_start_date":
                     date = Date.fromisoformat(arguments.get("date"))
                     goal.start = date
@@ -122,6 +124,7 @@ class CallsView(views.BaseViewSet):
 
                 """
             )
+            print("resopnding", llm_output)
             llm.submit_output(
                 thread_id=thread.remote_uuid,
                 run_id=run.remote_uuid,

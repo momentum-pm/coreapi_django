@@ -6,7 +6,12 @@ class Person(models.Model):
     name = models.CharField(max_length=255)
     about = models.TextField(blank=True)
     user = models.OneToOneField(
-        to="authentication.User", related_name="person", on_delete=models.CASCADE
+        to="authentication.User",
+        null=True,
+        blank=True,
+        default=None,
+        related_name="person",
+        on_delete=models.CASCADE,
     )
     member = models.OneToOneField(
         to="assistants.Member",
@@ -16,7 +21,8 @@ class Person(models.Model):
 
     def pre_save(self, in_create=False, in_bulk=False, index=None) -> None:
         if in_create:
-            self.name = f"{self.user.first_name} {self.user.last_name}"
+            if not self.name:
+                self.name = f"{self.user.first_name} {self.user.last_name}"
             self.member = Member.objects.create()
         return super().pre_save(in_create, in_bulk, index)
 
