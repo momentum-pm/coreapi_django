@@ -105,5 +105,12 @@ class LLM:
         embedding = completion.data[0].embedding
         return embedding
 
+    def submit_output(self, thread_id, run_id, call_id, output):
+        self.client.beta.threads.runs.submit_tool_outputs(
+            thread_id=thread_id,
+            run_id=run_id,
+            tool_outputs=[{"tool_call_id": call_id, "output": output}],
+        )
+
 
 llm = LLM()

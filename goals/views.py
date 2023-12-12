@@ -37,7 +37,7 @@ class GoalsView(
             obj = self.get_object()
             models.AnalyzerAssistant.objects.filter(goal=obj).delete()
             models.AnalyzerAssistant.objects.create(goal=obj)
-            return responses.Ok(message=self.get_delete_message(obj))
+            return responses.Ok(message=self.get_create_message(obj))
         except responses.BadRequest as response:
             return response
 

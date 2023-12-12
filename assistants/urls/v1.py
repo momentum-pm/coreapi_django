@@ -17,6 +17,10 @@ urlpatterns = [
         views.MessagesView.as_list(),
     ),
     re_path(
+        r"^calls/(?P<pk>[0-9]+)/submit-output/$",
+        views.CallsView.as_view(actions={"post":"post"}),
+    ),
+    re_path(
         r"^messages/$",
         views.MessagesView.as_create(),
     ),
