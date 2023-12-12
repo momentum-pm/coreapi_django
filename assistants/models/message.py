@@ -16,7 +16,6 @@ class Message(models.CreatableModel):
         (CALL, CALL),
     )
 
-    @staticmethod
     def get_default_type():
         return Message.USER
 
