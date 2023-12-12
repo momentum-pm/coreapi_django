@@ -109,11 +109,13 @@ class GoalFullRetrieveSerializer(serializers.ModelSerializer):
 class SubgoalCreateSerializer(serializers.NestedModelSerializer):
     class Meta:
         model = models.Goal
-        fields = ["name", "summary"]
+        fields = ["name", "summary", "metrics"]
 
     def validate(self, attrs):
+        parent = self.context.get("parent")
         owner = self.context.get("owner")
         attrs.update(owner=owner)
+        attrs.update(parent=parent)
         return super().validate(attrs)
 
 
@@ -132,7 +134,7 @@ class GoalCreateEditSerializer(serializers.ModelSerializer):
     subgoals = SubgoalCreateSerializer(many=True)
 
     def get_nested_context(self, key) -> dict:
-        return {"owner": self.instance.owner}
+        return {"owner": self.instance.owner, "parent": self.instance}
 
 
 class GoalInitiateSerializer(GoalFullRetrieveSerializer):
