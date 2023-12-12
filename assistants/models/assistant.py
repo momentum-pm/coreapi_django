@@ -51,6 +51,9 @@ class Assistant(models.Model):
     def __str__(self) -> str:
         return self.name
 
+    def handle_function(self, name, args):
+        return self.cast().handle_function(name, args)
+
     def get_instructions_for_run(self, member):
         return self.cast().get_instructions_for_run(member)
 

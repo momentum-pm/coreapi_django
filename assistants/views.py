@@ -32,49 +32,56 @@ class MessagesView(views.CreateModelMixin, views.ListModelMixin):
             from utils.llm import llm
 
             first_message = thread.messages.first()
-            if first_message and not first_message.is_response:
+            if first_message and (first_message.type == models.Message.USER):
                 run = thread.runs.first()
-                run_status = llm.get_run_status(run.remote_uuid, thread.remote_uuid)
-                if run_status in ["queued", "in_progress"]:
-                    print("PASSING", run_status)
-                    pass
-                elif run_status in ["completed"]:
-                    print("REQUESTING", run_status)
-                    last_message = llm.get_last_message(thread_id=thread.remote_uuid)
+                remote_run = llm.get_remote_run(run.remote_uuid, thread.remote_uuid)
+                run_status = remote_run.status
+                if run_status in [
+                    "completed",
+                    "cancelling",
+                    "cancelled",
+                    "expired",
+                    "failed",
+                ]:
+                    # Adding assistant message
+                    if run_status == "completed":
+                        new_message = llm.get_last_message(
+                            thread_id=thread.remote_uuid
+                        )[0]
+                        message_id = new_message.id
+                        content = new_message.content[0].text.value
+                    else:
+                        message_id = "null"
+                        content = "Sorry, some error eccured, please try again"
 
-                    for message in last_message:
-                        message_id = message.id
-                        if (
-                            models.Message.objects.filter(
-                                remote_uuid=message_id
-                            ).exists()
-                            is False
-                        ):
-                            content = message.content[0].text.value
-                            if len(content) > 3:
-                                models.Message.objects.create(
-                                    remote_uuid=message.id,
-                                    content=content,
-                                    is_response=True,
-                                    thread=thread,
-                                )
-                            else:
-                                models.Message.objects.create(
-                                    remote_uuid=message.id,
-                                    content=message.__str__(),
-                                    is_response=True,
-                                    thread=thread,
-                                )
-                elif run_status in ["cancelling", "cancelled", "expired", "failed"]:
                     models.Message.objects.create(
-                        remote_uuid="-------------",
-                        content="Sorry, some error eccured, please try again",
-                        is_response=True,
+                        remote_uuid=message_id,
+                        content=content,
+                        type=models.Message.ASSISTANT,
                         thread=thread,
                     )
                 elif run_status in ["requires_action"]:
-                    print("SOME ACTION NEEDED")
-                    print(message)
+                    # Adding call message
+                    tool_calls = (
+                        remote_run.required_action.submit_tool_outputs.tool_calls
+                    )
+                    message = models.Message.objects.create(
+                        remote_uuid="call",
+                        type=models.Message.CALL,
+                        thread=thread,
+                    )
+                    for tool_call in tool_calls:
+                        arguments = tool_call.function.arguments
+                        function_name = tool_call.function.name
+                        func = models.Function.objects.get(
+                            assistant=thread.assistant, name=function_name
+                        )
+                        models.Call.objects.create(
+                            func=func,
+                            arguments=arguments,
+                            message=message,
+                            remote_uuid=tool_call.id,
+                        )
             return thread.messages.all()
         else:
             return super().get_base_queryset()

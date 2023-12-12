@@ -72,10 +72,10 @@ class LLM:
         )
         return run.id
 
-    def get_run_status(self, run_id, thread_id):
+    def get_remote_run(self, run_id, thread_id):
         return self.client.beta.threads.runs.retrieve(
             thread_id=thread_id, run_id=run_id
-        ).status
+        )
 
     def get_message_id(self, content, file_paths, thread_id):
         file_ids = []

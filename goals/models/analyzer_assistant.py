@@ -22,17 +22,17 @@ class AnalyzerAssistant(Assistant):
     def _create_context_str(self, goal_info):
         # "notifications",
         ## goal general info
-        goal_id = goal_info.get("id","")
-        goal_name = goal_info.get("name","")
-        goal_summary = goal_info.get("summary","")
-        goal_start_date = goal_info.get("start","")
-        goal_end_date = goal_info.get("end","")
-        goal_status = goal_info.get("state","")
-        goal_latest_actions = goal_info.get("last_actions","")
-        goal_metric_values = goal_info.get("latest_metric_values","")
-        goal_dependencies = goal_info.get("dependencies","")
-        goal_subgoals = goal_info.get("subgoals","")
-        
+        goal_id = goal_info.get("id", "")
+        goal_name = goal_info.get("name", "")
+        goal_summary = goal_info.get("summary", "")
+        goal_start_date = goal_info.get("start", "")
+        goal_end_date = goal_info.get("end", "")
+        goal_status = goal_info.get("state", "")
+        goal_latest_actions = goal_info.get("last_actions", "")
+        goal_metric_values = goal_info.get("latest_metric_values", "")
+        goal_dependencies = goal_info.get("dependencies", "")
+        goal_subgoals = goal_info.get("subgoals", "")
+
         goal_context = """
                         You are the AI PM of this goal:
                         Goal ID: {goal_id}
@@ -63,7 +63,7 @@ class AnalyzerAssistant(Assistant):
             goal_subgoals=goal_subgoals,
         )
         return goal_context
-        
+
     def get_default_instructions(self):
         from goals.serializers import GoalInitiateSerializer
 
@@ -102,8 +102,14 @@ class AnalyzerAssistant(Assistant):
             ------------------------------------------------------------------
             goal subgoals: {goal_subgoals},
             ------------------------------------------------------------------
-            """.format(goal_name=data.name, goal_summary=data.summary, goal_metrics=data.metrics, goal_dependencies=data.dependencies, goal_subgoals=data.subgoals)
-        
+            """.format(
+            goal_name=data.get("name"),
+            goal_summary=data.get("summary"),
+            goal_metrics=data.get("metrics"),
+            goal_dependencies=data.get("dependencies"),
+            goal_subgoals=data.get("subgoals"),
+        )
+
         return default_instructions
 
     def get_instructions_for_run(self, member):
@@ -156,15 +162,13 @@ class AnalyzerAssistant(Assistant):
                 "parameters": {
                     "type": "object",
                     "properties": {
-                    "date": {
-                        "type": "string",
-                        "description": "The start date of the goal e.g. 11 Dec 2023"
-                    }
+                        "date": {
+                            "type": "string",
+                            "description": "The start date of the goal in YYYY-MM-DD format, e.g. 2023-12-23",
+                        }
                     },
-                    "required": [
-                    "date"
-                    ]
-                }
+                    "required": ["date"],
+                },
             },
         ),
         Function.objects.create(
@@ -175,15 +179,13 @@ class AnalyzerAssistant(Assistant):
                 "parameters": {
                     "type": "object",
                     "properties": {
-                    "date": {
-                        "type": "string",
-                        "description": "The end date of the goal e.g. 28 Dec 2023"
-                    }
+                        "date": {
+                            "type": "string",
+                            "description": "The end date of the goal  in YYYY-MM-DD format, e.g. 2023-12-28",
+                        }
                     },
-                    "required": [
-                    "date"
-                    ]
-                }
+                    "required": ["date"],
+                },
             },
         ),
         Function.objects.create(
@@ -194,28 +196,19 @@ class AnalyzerAssistant(Assistant):
                 "parameters": {
                     "type": "object",
                     "properties": {
-                    "name": {
-                        "type": "string",
-                        "description": "Subgoal name"
+                        "name": {"type": "string", "description": "Subgoal name"},
+                        "summary": {"type": "string", "description": "Subgoal summary"},
+                        "owner_name": {
+                            "type": "string",
+                            "description": "Subgoal owners name",
+                        },
+                        "owner_id": {
+                            "type": "string",
+                            "description": "Subgoal owners ID",
+                        },
                     },
-                    "summary": {
-                        "type": "string",
-                        "description": "Subgoal summary"
-                    },
-                    "owner_name": {
-                        "type": "string",
-                        "description": "Subgoal owner name"
-                    },
-                    "owner_id": {
-                        "type": "string",
-                        "description": "Subgoal owner ID"
-                    }
-                    },
-                    "required": [
-                    "name",
-                    "summary"
-                    ]
-                }
+                    "required": ["name", "summary"],
+                },
             },
         ),
         Function.objects.create(
@@ -226,19 +219,17 @@ class AnalyzerAssistant(Assistant):
                 "parameters": {
                     "type": "object",
                     "properties": {
-                    "subgoal_id": {
-                        "type": "string",
-                        "description": "The id of the subgoal should be removed from this goal."
+                        "subgoal_id": {
+                            "type": "string",
+                            "description": "The id of the subgoal should be removed from this goal.",
+                        },
+                        "subgoal_name": {
+                            "type": "string",
+                            "description": "The name of the subgoal should be removed from this goal.",
+                        },
                     },
-                    "subgoal_name": {
-                        "type": "string",
-                        "description": "The name of the subgoal should be removed from this goal."
-                    }
-                    },
-                    "required": [
-                    "subgoal_name",
-                    "subgoal_id"]
-                }
+                    "required": ["subgoal_name", "subgoal_id"],
+                },
             },
         ),
         Function.objects.create(
@@ -249,15 +240,13 @@ class AnalyzerAssistant(Assistant):
                 "parameters": {
                     "type": "object",
                     "properties": {
-                    "status": {
-                        "type": "string",
-                        "description": "The current status of the goal which can be 'To Do' or 'In progress' or 'Done'. Don't set the status something else than these. Change the input to one of these if it was not exactly the same"
-                    }
+                        "status": {
+                            "type": "string",
+                            "description": "The current status of the goal which can be 'To Do' or 'In progress' or 'Done'. Don't set the status something else than these. Change the input to one of these if it was not exactly the same",
+                        }
                     },
-                    "required": [
-                    "status"
-                    ]
-                }
+                    "required": ["status"],
+                },
             },
         ),
         Function.objects.create(
@@ -268,15 +257,13 @@ class AnalyzerAssistant(Assistant):
                 "parameters": {
                     "type": "object",
                     "properties": {
-                    "doing_percentage": {
-                        "type": "string",
-                        "description": "The current doing percentage (progress percentage) of the goal which is a number between 0 and 1 or from 0 to 100 (in percentage)."
-                    }
+                        "doing_percentage": {
+                            "type": "string",
+                            "description": "The current doing percentage (progress percentage) of the goal which is a number between 0 and 1 or from 0 to 100 (in percentage).",
+                        }
                     },
-                    "required": [
-                    "doing_percentage"
-                    ]
-                }
+                    "required": ["doing_percentage"],
+                },
             },
         ),
         Function.objects.create(
@@ -287,25 +274,21 @@ class AnalyzerAssistant(Assistant):
                 "parameters": {
                     "type": "object",
                     "properties": {
-                    "person_name": {
-                        "type": "string",
-                        "description": "The name of the person who has done the action."
+                        "person_name": {
+                            "type": "string",
+                            "description": "The name of the person who has done the action.",
+                        },
+                        "person_id": {
+                            "type": "string",
+                            "description": "The ID of the person who has done the action.",
+                        },
+                        "summary": {
+                            "type": "string",
+                            "description": "The summary explanation of the action done for this goal.",
+                        },
                     },
-                    "person_id": {
-                        "type": "string",
-                        "description": "The ID of the person who has done the action."
-                    },
-                    "summary": {
-                        "type": "string",
-                        "description": "The summary explanation of the action done for this goal."
-                    }
-                    },
-                    "required": [
-                    "person_name",
-                    "person_id",
-                    "summary"
-                    ]
-                }
+                    "required": ["person_name", "person_id", "summary"],
+                },
             },
         ),
         Function.objects.create(
@@ -316,25 +299,21 @@ class AnalyzerAssistant(Assistant):
                 "parameters": {
                     "type": "object",
                     "properties": {
-                    "mertic_id": {
-                        "type": "string",
-                        "description": "The ID of the metric should be updated."
+                        "mertic_id": {
+                            "type": "string",
+                            "description": "The ID of the metric should be updated.",
+                        },
+                        "mertic_name": {
+                            "type": "string",
+                            "description": "The name of the metric should be updated.",
+                        },
+                        "value": {
+                            "type": "string",
+                            "description": "The new value of the metric.",
+                        },
                     },
-                    "mertic_name": {
-                        "type": "string",
-                        "description": "The name of the metric should be updated."
-                    },
-                    "value": {
-                        "type": "string",
-                        "description": "The new value of the metric."
-                    }
-                    },
-                    "required": [
-                    "mertic_id",
-                    "mertic_name",
-                    "value"
-                    ]
-                }
+                    "required": ["mertic_id", "mertic_name", "value"],
+                },
             },
         ),
         Function.objects.create(
@@ -345,19 +324,16 @@ class AnalyzerAssistant(Assistant):
                 "parameters": {
                     "type": "object",
                     "properties": {
-                    "owner_name": {
-                        "type": "string",
-                        "description": "The name of the owner of the goal"
+                        "owner_name": {
+                            "type": "string",
+                            "description": "The name of the owner of the goal",
+                        },
+                        "owner_id": {
+                            "type": "string",
+                            "description": "The ID of the owner of the goal",
+                        },
                     },
-                    "owner_id": {
-                        "type": "string",
-                        "description": "The ID of the owner of the goal"
-                    }
-                    },
-                    "required": [
-                    "owner_name",
-                    "owner_id"
-                    ]
-                }
+                    "required": ["owner_name", "owner_id"],
+                },
             },
         ),
