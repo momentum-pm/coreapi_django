@@ -50,6 +50,7 @@ class AnalyzerAssistant(Assistant):
                         Goal dependencies: {goal_dependencies}
                         --------------------------------------------------------------------------------------------------------------------------------
                         Goal subgoals: {goal_subgoals}
+                        Never call more than on tasks in a run, Never include more than 1 function call in a run.
                        """.format(
             goal_id=goal_id,
             goal_name=goal_name,
@@ -89,7 +90,12 @@ class AnalyzerAssistant(Assistant):
             5. if he confirmed then apply the change on the goal.
             6. Tell the new information to your subgoals
             7. If you had any change, tell the change to your subgoals
-            Notice that there is some information that are irrelevant to your goal. Don't change anything if it was irrelevant. Do all of the steps said to you one by one carefully.
+            Notice call than more than one of these tool functions in one run:
+             [set_start_date,set_end_date, add_subgoal, remove_subgoal, set_status,set_doing_percentage, update_metricvalue, add_action, set_owner]
+            At each run you are only allowed to call one of mentioned tools alongside any other tools.
+            After calling one of the mentioned tools, you will get an output on if the user approved the change.
+            If user responds positive to the output of function calls, assume it is done, otherwise ask questions to clarify with them.
+            Don't change anything if it was irrelevant. Do all of the steps said to you one by one carefully.
 
             The goal's info is:
             goal name: {goal_name},
