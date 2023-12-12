@@ -183,7 +183,7 @@ class AnalyzerAssistant(Assistant):
                             "description": "The name of the new owner of the goal. If nobody where mentioned, dont't include an owner",
                         },
                         "owner_id": {
-                            "type": "int",
+                            "type": "string",
                             "description": "If you have an id given before in the context, put it here. don't generate an id for a newly added person by yourself.  If nobody where mentioned, dont't include an owner",
                         },
                     },
@@ -200,7 +200,7 @@ class AnalyzerAssistant(Assistant):
                     "type": "object",
                     "properties": {
                         "subgoal_id": {
-                            "type": "int",
+                            "type": "string",
                             "description": "The id of the subgoal should be removed from this goal.",
                         },
                         "subgoal_name": {
@@ -238,7 +238,7 @@ class AnalyzerAssistant(Assistant):
                     "type": "object",
                     "properties": {
                         "doing_percentage": {
-                            "type": "int",
+                            "type": "string",
                             "description": "The current doing percentage (progress percentage) of the goal which is an integer between 0 to 100 (in percentage).",
                         }
                     },
@@ -280,7 +280,7 @@ class AnalyzerAssistant(Assistant):
                     "type": "object",
                     "properties": {
                         "mertic_id": {
-                            "type": "int",
+                            "type": "string",
                             "description": "The ID of the metric should be updated.",
                         },
                         "mertic_name": {
@@ -309,7 +309,7 @@ class AnalyzerAssistant(Assistant):
                             "description": "The name of the new owner of the goal",
                         },
                         "owner_id": {
-                            "type": "int",
+                            "type": "string",
                             "description": "If you have an id given before in the context, put it here. don't generate an id for a newly added person by yourself",
                         },
                     },

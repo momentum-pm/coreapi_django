@@ -54,12 +54,12 @@ class CallsView(views.BaseViewSet):
                     goal.state_percentage = float(arguments.get("doing_percentage"))
                     goal.save()
                 if function_name == "set_status":
-                    goal.state = float(arguments.get("status"))
+                    goal.state = arguments.get("status")
                     goal.save()
                 if function_name == "change_owner":
                     owner_id = arguments.get("owner_id", None)
-                    if owner_id and Person.objects.filter(id=owner_id).exists():
-                        person = Person.objects.get(id=owner_id)
+                    if owner_id and Person.objects.filter(id=int(owner_id)).exists():
+                        person = Person.objects.get(id=int(owner_id))
                     else:
                         person = Person.objects.create(
                             about="A new person", name=arguments.get("owner_name")
@@ -68,14 +68,14 @@ class CallsView(views.BaseViewSet):
                     goal.save()
                 if function_name == "update_metricvalue":
                     MetricValue.objects.create(
-                        metric=Metric.objects.get(id=arguments.get("metric_id")),
+                        metric=Metric.objects.get(id=int(arguments.get("metric_id"))),
                         value=arguments.get("value"),
                         goal=goal,
                     )
                 if function_name == "add_action":
                     person_id = arguments.get("person_id", None)
-                    if person_id and Person.objects.filter(id=person_id).exists():
-                        person = Person.objects.get(id=person_id)
+                    if person_id and Person.objects.filter(id=int(person_id)).exists():
+                        person = Person.objects.get(id=int(person_id))
                     else:
                         person = Person.objects.create(
                             about="A new person", name=arguments.get("owner_name")
@@ -87,15 +87,18 @@ class CallsView(views.BaseViewSet):
                     )
                 if function_name == "remove_subgoal":
                     goal_id = arguments.get("subgoal_id")
-                    if goal_id and Goal.objects.filter(id=goal_id).exists():
-                        subgoal = Goal.objects.get(id=goal_id)
+                    if goal_id and Goal.objects.filter(id=int(goal_id)).exists():
+                        subgoal = Goal.objects.get(id=int(goal_id))
                         subgoal.delete()
                 if function_name == "add_subgoal":
                     owner_id = arguments.get("owner_id", None)
                     owner_name = arguments.get("owner_name", None)
                     if owner_name:
-                        if Person.objects.filter(id=owner_id).exists():
-                            owner = Person.objects.get(id=owner_id)
+                        if (
+                            owner_id
+                            and Person.objects.filter(id=int(owner_id)).exists()
+                        ):
+                            owner = Person.objects.get(id=int(owner_id))
                         else:
                             owner = Person.objects.create(
                                 about="A new person", name=arguments.get("owner_name")
