@@ -78,7 +78,7 @@ class CallsView(views.BaseViewSet):
                         person = Person.objects.get(id=int(person_id))
                     else:
                         person = Person.objects.create(
-                            about="A new person", name=arguments.get("owner_name")
+                            about="A new person", name=arguments.get("person_name")
                         )
                     Action.objects.create(
                         person=person,
