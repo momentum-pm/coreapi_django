@@ -20,6 +20,9 @@ class AssistantsView(views.ListModelMixin):
     response_serializer = serializers.AssistantBaseSerializer
 
 
+from datetime import date as Date
+
+
 class CallsView(views.BaseViewSet):
     base_queryset = models.Call.objects.all()
     permission_classes = [permissions.AllowAny]
@@ -32,16 +35,98 @@ class CallsView(views.BaseViewSet):
             obj.output = output
             obj.save()
             if output == "Yes":
+                function_name = obj.function.specification.get("name")
+                arguments = obj.arguments
+                from goals.models import MetricValue, Metric, Person, Goal, Action
+
+                goal = obj.message.thread.assistant.goal
+                if function_name == "set_start_date":
+                    date = Date.fromisoformat(arguments.get("date"))
+                    goal.start = date
+                    goal.save()
+                if function_name == "set_end_date":
+                    date = Date.fromisoformat(arguments.get("date"))
+                    goal.end = date
+                    goal.save()
+                if function_name == "set_doing_percentage":
+                    goal.state_percentage = float(arguments.get("doing_percentage"))
+                    goal.save()
+                if function_name == "set_status":
+                    goal.state = float(arguments.get("status"))
+                    goal.save()
+                if function_name == "change_owner":
+                    owner_id = arguments.get("owner_id", None)
+                    if owner_id and Person.objects.filter(id=owner_id).exists():
+                        person = Person.objects.get(id=owner_id)
+                    else:
+                        person = Person.objects.create(
+                            about="A new person", name=arguments.get("owner_name")
+                        )
+                    goal.owner = person
+                    goal.save()
+                if function_name == "update_metricvalue":
+                    MetricValue.objects.create(
+                        metric=Metric.objects.get(id=arguments.get("metric_id")),
+                        value=arguments.get("value"),
+                        goal=goal,
+                    )
+                if function_name == "add_action":
+                    person_id = arguments.get("person_id", None)
+                    if person_id and Person.objects.filter(id=person_id).exists():
+                        person = Person.objects.get(id=person_id)
+                    else:
+                        person = Person.objects.create(
+                            about="A new person", name=arguments.get("owner_name")
+                        )
+                    Action.objects.create(
+                        person=person,
+                        summary=arguments.get("summary"),
+                        goal=goal,
+                    )
+                if function_name == "remove_subgoal":
+                    goal_id = arguments.get("subgoal_id")
+                    if goal_id and Goal.objects.filter(id=goal_id).exists():
+                        subgoal = Goal.objects.get(id=goal_id)
+                        subgoal.delete()
+                if function_name == "add_subgoal":
+                    owner_id = arguments.get("owner_id", None)
+                    owner_name = arguments.get("owner_name", None)
+                    if owner_name:
+                        if Person.objects.filter(id=owner_id).exists():
+                            owner = Person.objects.get(id=owner_id)
+                        else:
+                            owner = Person.objects.create(
+                                about="A new person", name=arguments.get("owner_name")
+                            )
+                    else:
+                        owner = goal.owner
+                    Goal.objects.create(
+                        parent=goal,
+                        name=arguments.get("name"),
+                        summary=arguments.get("summary"),
+                        owner=owner,
+                    )
+
                 # TODO apply the change
                 pass
             from utils.llm import llm
+
             thread = obj.message.thread
             run = thread.runs.first()
+            llm_output = llm.get_response(
+                f"""
+                    I will give you a question asked by Person1, and answered by Person2 with Yes or No
+                    Write a 1 sentence answer instead of the Person2 with respect to their original answer
+                    The question by Person1 was:{obj.question}
+                    The answer:{output}
+
+                """
+            )
             llm.submit_output(
                 thread_id=thread.remote_uuid,
                 run_id=run.remote_uuid,
                 call_id=obj.remote_uuid,
-                output=output,
+                output=llm_output,
             )
             return responses.Ok(message=self.get_create_message(obj))
         except responses.BadRequest as response:
@@ -63,8 +148,11 @@ class MessagesView(views.CreateModelMixin, views.ListModelMixin):
             if first_message:
                 should_check = False
                 if first_message.type == models.Message.CALL:
-                    incomplete_calls = message.calls.filter(output__isnull=True)
-                    if incomplete_calls.exists() is False and message.content is None:
+                    incomplete_calls = first_message.calls.filter(output__isnull=True)
+                    if (
+                        incomplete_calls.exists() is False
+                        and first_message.content is None
+                    ):
                         should_check = True
                 if first_message.type == models.Message.USER:
                     should_check = True
@@ -89,7 +177,7 @@ class MessagesView(views.CreateModelMixin, views.ListModelMixin):
                         else:
                             message_id = "null"
                             content = "Sorry, some error eccured, please try again"
-                        if message.type == models.Message.USER:
+                        if first_message.type == models.Message.USER:
                             models.Message.objects.create(
                                 remote_uuid=message_id,
                                 content=content,
@@ -97,20 +185,22 @@ class MessagesView(views.CreateModelMixin, views.ListModelMixin):
                                 thread=thread,
                             )
                         else:
-                            message.content = content
-                            message.remote_uuid = message_id
-                            message.save()
+                            first_message.content = content
+                            first_message.remote_uuid = message_id
+                            first_message.save()
                     elif run_status in ["requires_action"]:
                         # Adding call message
                         tool_calls = (
                             remote_run.required_action.submit_tool_outputs.tool_calls
                         )
-                        if message.type != models.Message.CALL:
+                        if first_message.type != models.Message.CALL:
                             message = models.Message.objects.create(
                                 remote_uuid="call",
                                 type=models.Message.CALL,
                                 thread=thread,
                             )
+                        else:
+                            message = first_message
                         for tool_call in tool_calls:
                             arguments = tool_call.function.arguments
                             function_name = tool_call.function.name
@@ -120,9 +210,6 @@ class MessagesView(views.CreateModelMixin, views.ListModelMixin):
                             func = None
                             print(function_name)
                             for f in functions:
-                                print("CHECKING FUNC")
-                                print(f.specification)
-
                                 if f.specification.get("name") == function_name:
                                     func = f
 

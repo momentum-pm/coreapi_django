@@ -180,11 +180,11 @@ class AnalyzerAssistant(Assistant):
                         "summary": {"type": "string", "description": "Subgoal summary"},
                         "owner_name": {
                             "type": "string",
-                            "description": "Subgoal owners name",
+                            "description": "The name of the new owner of the goal. If nobody where mentioned, dont't include an owner",
                         },
                         "owner_id": {
-                            "type": "string",
-                            "description": "Subgoal owners ID",
+                            "type": "int",
+                            "description": "If you have an id given before in the context, put it here. don't generate an id for a newly added person by yourself.  If nobody where mentioned, dont't include an owner",
                         },
                     },
                     "required": ["name", "summary"],
@@ -200,7 +200,7 @@ class AnalyzerAssistant(Assistant):
                     "type": "object",
                     "properties": {
                         "subgoal_id": {
-                            "type": "string",
+                            "type": "int",
                             "description": "The id of the subgoal should be removed from this goal.",
                         },
                         "subgoal_name": {
@@ -222,7 +222,7 @@ class AnalyzerAssistant(Assistant):
                     "properties": {
                         "status": {
                             "type": "string",
-                            "description": "The current status of the goal which can be 'To Do' or 'In progress' or 'Done'. Don't set the status something else than these. Change the input to one of these if it was not exactly the same",
+                            "description": "The current status of the goal which can be exactly one of 'upcomming', 'ongoing', or 'passed'. Don't set the status something else than these. Change the input to one of these if it was not exactly the same",
                         }
                     },
                     "required": ["status"],
@@ -238,8 +238,8 @@ class AnalyzerAssistant(Assistant):
                     "type": "object",
                     "properties": {
                         "doing_percentage": {
-                            "type": "string",
-                            "description": "The current doing percentage (progress percentage) of the goal which is a number between 0 and 1 or from 0 to 100 (in percentage).",
+                            "type": "int",
+                            "description": "The current doing percentage (progress percentage) of the goal which is an integer between 0 to 100 (in percentage).",
                         }
                     },
                     "required": ["doing_percentage"],
@@ -280,7 +280,7 @@ class AnalyzerAssistant(Assistant):
                     "type": "object",
                     "properties": {
                         "mertic_id": {
-                            "type": "string",
+                            "type": "int",
                             "description": "The ID of the metric should be updated.",
                         },
                         "mertic_name": {
@@ -306,14 +306,14 @@ class AnalyzerAssistant(Assistant):
                     "properties": {
                         "owner_name": {
                             "type": "string",
-                            "description": "The name of the owner of the goal",
+                            "description": "The name of the new owner of the goal",
                         },
                         "owner_id": {
-                            "type": "string",
-                            "description": "The ID of the owner of the goal",
+                            "type": "int",
+                            "description": "If you have an id given before in the context, put it here. don't generate an id for a newly added person by yourself",
                         },
                     },
-                    "required": ["owner_name", "owner_id"],
+                    "required": ["owner_name"],
                 },
             },
         )
