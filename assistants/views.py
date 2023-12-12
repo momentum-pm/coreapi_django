@@ -77,9 +77,14 @@ class MessagesView(views.CreateModelMixin, views.ListModelMixin):
                             assistant=thread.assistant
                         )
                         func = None
+                        print(function_name)
                         for f in functions:
+                            print("CHECKING FUNC")
+                            print(f.specification)
+
                             if f.specification.get("name") == function_name:
                                 func = f
+
                         if func:
                             models.Call.objects.create(
                                 func=func,
