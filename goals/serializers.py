@@ -49,7 +49,7 @@ class MetricValueSerializer(serializers.ModelSerializer):
 class RelatedGoalSerializer(serializers.ModelSerializer):
     class Meta:
         model = models.Goal
-        fields = ["name", "summary"]
+        fields = ["id", "name", "summary"]
 
 
 class DependencyTargetSerializer(serializers.ModelSerializer):
